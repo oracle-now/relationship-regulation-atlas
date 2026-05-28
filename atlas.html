@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Regulation Map — Relationship Regulation Atlas</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <a href="index.html" style="display:flex;gap:.8rem;align-items:center;text-decoration:none;color:inherit">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Relationship Regulation Atlas</h1>
+          <p>Understand patterns. Map cycles. Find a way through.</p>
+        </div>
+      </a>
+    </div>
+    <div class="toolbar">
+      <button class="btn" data-theme-toggle aria-label="Toggle theme">&#9680;</button>
+      <a class="btn" href="index.html">&larr; All contexts</a>
+      <a class="btn" href="references.html">Lineage</a>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Nervous system &middot; Attachment &middot; Relationship cycles</span>
+        <h2>Why do we do what we do&mdash;and what does it cost us?</h2>
+        <p class="sub">The Regulation Map is the core of the atlas. Every behavior here is an attempt to survive something. The map names the logic, the cost, and the way through &mdash; context-free, so you can take it into any relationship.</p>
+        <div class="legend">
+          <div class="chip"><span class="dot d1"></span>Move toward</div>
+          <div class="chip"><span class="dot d2"></span>Move away</div>
+          <div class="chip"><span class="dot d3"></span>Numb</div>
+          <div class="chip"><span class="dot d4"></span>Discharge</div>
+          <div class="chip"><span class="dot d5"></span>Control</div>
+          <div class="chip"><span class="dot d6"></span>Transform</div>
+        </div>
+      </div>
+      <div class="panel pad">
+        <h3 style="margin-top:0;font-family:var(--font-display)">How to use this map</h3>
+        <div class="stage"><strong>1. Find yourself.</strong> Browse the matrix and notice which behaviors feel familiar. Click any row to expand the full picture.</div>
+        <div class="stage"><strong>2. Map your cycle.</strong> Use the Pairing Map to see what happens when your move meets your partner&rsquo;s move.</div>
+        <div class="stage"><strong>3. Take it somewhere.</strong> Use the hub to explore how these patterns shift in different relational contexts &mdash; work, family, friendship.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MATRIX -->
+  <section class="section" id="matrix">
+    <h2 class="section-title">The Matrix</h2>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Search behaviors..." oninput="renderTable()" />
+    </div>
+    <div class="tabs" id="clusterTabs"></div>
+    <div class="grid-2">
+      <div class="matrix-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Behavior</th>
+              <th>Moves</th>
+              <th>Short-term logic</th>
+              <th>Long-term cost</th>
+              <th>Resistance</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
+      </div>
+      <div class="panel pad">
+        <h3 style="margin-top:0;font-family:var(--font-display)">Click any row</h3>
+        <p class="small">Expanding a row reveals the full picture: what triggers this behavior, what it protects you from seeing, what your partner&rsquo;s behavior lets you avoid, and what a healthier version of the same move looks like.</p>
+        <p class="small" style="margin-top:var(--space-3)">Frameworks drawn on include Gottman&rsquo;s Four Horsemen, Orna Guralnik&rsquo;s enactment model, IFS parts language, polyvagal theory, and EFT pursuer&ndash;distancer cycle mapping.</p>
+        <div class="stage" style="margin-top:var(--space-4)">Each behavior is a <em>strategy</em>, not a character flaw. Every row includes the internal logic that makes it make sense.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIRING MAP -->
+  <section class="section" id="pairingMap">
+    <h2 class="section-title">Relationship Cycle Map</h2>
+    <p class="sub" style="margin-bottom:var(--space-5)">Choose one behavior for each person. See the likely cycle that emerges&mdash;and where it tends to go.</p>
+    <div class="panel pad">
+      <div class="toolbar" style="margin-bottom:var(--space-4);gap:var(--space-3)">
+        <div>
+          <div class="small" style="margin-bottom:.4rem">Partner A does&hellip;</div>
+          <select id="aSelect" class="select-ctrl"></select>
+        </div>
+        <div style="padding-top:1.4rem;color:var(--color-text-muted)">+</div>
+        <div>
+          <div class="small" style="margin-bottom:.4rem">Partner B responds with&hellip;</div>
+          <select id="bSelect" class="select-ctrl"></select>
+        </div>
+      </div>
+      <div class="cycle-grid">
+        <div class="cycle-box">
+          <div class="small muted">Partner A</div>
+          <h4 id="aTitle" style="margin:.4rem 0 .3rem"></h4>
+          <div id="aLogic" class="small"></div>
+          <div id="aFear" class="resistance-row"></div>
+        </div>
+        <div class="cycle-arrow">&rarr;</div>
+        <div class="cycle-box">
+          <div class="small muted">Partner B</div>
+          <h4 id="bTitle" style="margin:.4rem 0 .3rem"></h4>
+          <div id="bLogic" class="small"></div>
+          <div id="bFear" class="resistance-row"></div>
+        </div>
+      </div>
+      <div class="cycle-out" id="cycleOut"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer style="border-top:1px solid var(--color-border);margin-top:var(--space-12);padding:var(--space-8) var(--space-4);text-align:center">
+  <p class="small muted">Relationship Regulation Atlas &mdash; a work in progress. Built with care.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

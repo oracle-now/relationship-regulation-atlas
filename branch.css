@@ -1,0 +1,158 @@
+/* ============================================================
+   BRANCH PAGE STYLES — shared across all context branches
+   ============================================================ */
+
+/* BRANCH HERO */
+.branch-hero {
+  padding: var(--space-10) 0 var(--space-8);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-8);
+  position: relative;
+}
+.branch-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -var(--space-4); right: -var(--space-4);
+  height: 4px;
+  background: var(--branch-color, var(--color-primary));
+  opacity: 0.6;
+}
+.branch-eyebrow {
+  display: inline-block;
+  background: var(--color-primary-2);
+  color: var(--color-primary);
+  padding: .4rem .75rem;
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+.branch-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: 1.05;
+  margin: 0 0 var(--space-4);
+}
+.branch-sub {
+  color: var(--color-text-muted);
+  max-width: 62ch;
+  line-height: 1.7;
+  font-size: var(--text-base);
+  margin: 0;
+}
+
+/* BRANCH FRAME */
+.branch-frame {
+  padding-bottom: var(--space-10);
+}
+
+/* INTRO GRID */
+.branch-intro-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+  align-items: start;
+}
+.branch-intro-text h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-4);
+}
+.branch-intro-text p {
+  color: var(--color-text-muted);
+  line-height: 1.75;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+.branch-lens {
+  position: sticky;
+  top: calc(var(--space-16) + var(--space-4));
+}
+.branch-lens-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+/* SECTION TITLE */
+.branch-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-5);
+}
+
+/* BEHAVIOR CARDS */
+.branch-behavior-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-4);
+}
+.bcard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.bcard-name {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  color: var(--color-text);
+}
+.bcard-move {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: 0 var(--space-4) var(--space-3);
+}
+.bcard-body {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.bcard-row {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+.bcard-row strong {
+  color: var(--color-text);
+  font-weight: 600;
+  display: inline;
+}
+.bcard-resist {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+}
+.bcard-through {
+  border-left: 2px solid var(--color-primary);
+  padding-left: var(--space-3);
+}
+
+/* BACK ROW */
+.branch-back-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-8) 0 var(--space-4);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .branch-intro-grid { grid-template-columns: 1fr; }
+  .branch-lens { position: static; }
+  .branch-behavior-grid { grid-template-columns: 1fr; }
+}
