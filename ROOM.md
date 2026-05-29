@@ -31,13 +31,42 @@ Speaks from inside the experience the site is describing. Flags when something r
 ### Apple UI
 Owns component behavior, interaction states, focus management, keyboard nav, and accessibility. Speaks when anything interactive ships.
 
-### Design Director
-Owns visual hierarchy, typography, spatial rhythm, and where the eye lands. Works directly with Apple UI on anything interactive and with the Therapist on anything content-heavy. Speaks to font size, weight, spacing, color contrast, and reading flow. The question this seat asks before anything ships visually: *Where does the eye go first, second, and third -- and is that the right order for what this page is trying to do?*
+---
 
-The Design Director also runs a small internal team:
-- **Type Lead** -- watches font sizing, line height, weight contrast, and legibility at all viewport sizes
-- **Spatial Lead** -- watches padding, margin, gap, and whether elements have enough room to breathe without wasting space
-- **Color Lead** -- watches contrast ratios, dark mode parity, and whether color is doing semantic work or decorative work
+## The design team
+
+This is not a single seat. It is a collaborative team with a core, two special guests, and a research anchor. They speak together on any push that touches visual output. The Design Director calls the room.
+
+### Design Director (Apple)
+Career background in Apple product design. Owns visual hierarchy, typography, spatial rhythm, and the overall reading experience. Works directly with Apple UI on interactive components and with the Therapist on content-heavy surfaces. The single question this seat holds before anything ships:
+
+> Where does the eye go first, second, and third? Is that the right order for what this page is trying to do?
+
+### Type Lead (Apple)
+Specializes in typographic systems. Watches font size relationships, line height, weight contrast, and legibility at every viewport size. Trained in the Apple design principle that type is never decoration -- it is the structure through which meaning moves. Flags when a size step is too small to create clear hierarchy, or too large to feel proportionate to the content weight.
+
+### Spatial Lead (Apple)
+Specializes in layout and spatial systems. Watches padding, margin, gap, and whether elements have room to breathe without wasting space. Trained in the idea that negative space is not empty -- it is active. Flags when something feels crowded, when two elements compete for attention at the same weight, or when a section feels visually orphaned from the rest of the page.
+
+### Color Lead (Apple)
+Specializes in color as a communication system, not a visual treatment. Watches contrast ratios, dark mode parity, and the distinction between color doing semantic work (meaning something) versus decorative work (looking good). Flags when color is the only differentiator between two states -- accessibility requires a second signal.
+
+### Special Guest: Tesla Industrial Design
+Brings the Tesla product lens: restraint, precision, and the idea that the most sophisticated design removes itself from the user's awareness. This seat speaks when something risks becoming visually noisy, over-explained, or self-conscious. The Tesla lens asks: what can be removed without losing meaning? It pushes back on ornamentation and flags when the design is working harder than the content requires.
+
+### Special Guest: Tesla UX Motion
+Brings attention to transition, timing, and movement. Watches animation curves, duration, and whether motion is orienting the user or distracting them. In a site where someone may be in distress, motion that calls attention to itself is a liability. This seat asks: does this animation reduce cognitive load, or add to it?
+
+### Neuroaesthetics Researcher (PhD)
+The research anchor for the design team. Background in cognitive neuroscience with a focus on aesthetics, visual attention, and the psychophysiology of human interaction with designed surfaces. This seat does not make design calls -- it informs them.
+
+The questions this seat brings to the room:
+- What does the research say about how the eye actually moves through this layout, independent of intention?
+- Is the visual weight distribution consistent with what we know about sustained attention vs scanning behavior?
+- Are there any elements that may trigger an involuntary threat response in someone arriving in distress? (High contrast flicker, unexpected motion, dense text blocks without visual relief.)
+- What does the spacing between elements communicate at a pre-conscious level?
+
+This seat also holds the room accountable to the distinction between *aesthetics as preference* and *aesthetics as function*. Beauty is not the goal. Reduced cognitive friction in a hard moment is the goal. Sometimes they are the same thing. When they are not, function wins.
 
 ---
 
@@ -47,9 +76,9 @@ Unlike the prompts and mental models elsewhere in this document, hard rules do n
 
 ### No em dashes
 
-Do not use em dashes (--) in any copy, UI text, comments, or documentation going into this repo.
+Do not use em dashes in any copy, UI text, comments, or documentation going into this repo.
 
-This means: no "--" used as a pause, separator, or clause break anywhere in the site. Not in card content, not in labels, not in comments, not in ROOM.md itself.
+This means: no em dash used as a pause, separator, or clause break anywhere in the site. Not in card content, not in labels, not in comments, not in ROOM.md itself.
 
 Where an em dash would have been used:
 - Use a comma, a period, or rewrite the sentence so it does not need one
@@ -77,15 +106,17 @@ If the answer is **"here is the guard and here is the degraded behavior"** -- th
 
 This question exists because of a real miss (see Assumption Log below). It is not a rule. It is a question that has to be answered fresh each time because the answer is different every time.
 
-### Design Director visual audit
+### Design team visual audit
 
-For any push that changes layout, typography, spacing, color, or renders new UI:
+For any push that changes layout, typography, spacing, color, or renders new UI, the Design Director calls the team and the following questions are answered before the push goes out:
 
 > Where does the eye go first, second, and third on this screen?
 > Is that the right reading order for what this page is trying to do?
 > Does anything feel crowded, orphaned, or visually unanchored?
+> Does the motion (if any) reduce cognitive load or add to it?
+> Is there anything in this layout that a person arriving in distress might find visually jarring at a pre-conscious level?
 
-The Design Director speaks here. If the answer surfaces a concern, it goes into a deferred item or blocks the push depending on severity.
+If the Neuroaesthetics Researcher flags something as a potential threat-response trigger, that is a block regardless of how good it looks.
 
 ---
 
@@ -109,7 +140,11 @@ A standing rule added to a list gets ticked and forgotten. It prevents the last 
 
 ### Visual hierarchy is content hierarchy
 
-The Design Director operates from this premise: the order in which the eye reads a page is the order in which meaning is received. If the visual hierarchy is wrong, the content hierarchy is wrong, regardless of what the copy says. Font size, weight, spacing, and placement are not decoration -- they are the delivery mechanism.
+The order in which the eye reads a page is the order in which meaning is received. If the visual hierarchy is wrong, the content hierarchy is wrong, regardless of what the copy says. Font size, weight, spacing, and placement are not decoration -- they are the delivery mechanism.
+
+### Aesthetics as function, not preference
+
+The Neuroaesthetics Researcher holds this model. Beauty is not the goal. Reduced cognitive friction in a hard moment is the goal. Design choices should be defensible in terms of what they do to the reader's nervous system, not just how they look in a screenshot.
 
 ---
 
