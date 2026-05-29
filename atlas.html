@@ -87,7 +87,13 @@
     .browse-table th:first-child,
     .browse-table td:first-child { width: 72%; }
     .browse-table th:nth-child(2),
-    .browse-table td:nth-child(2) { width: 28%; }
+    .browse-table td:nth-child(2) {
+      width: 28%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 0;
+    }
     .behavior-name { font-weight: 700; }
     .behavior-warm {
       display: block;
@@ -102,7 +108,7 @@
       font-weight: 700;
       letter-spacing: .08em;
       text-transform: uppercase;
-      color: var(--color-primary);
+      color: var(--color-text-muted);
       background: var(--color-surface-2);
     }
 
@@ -304,7 +310,7 @@
         type="search"
         id="topbarSearch"
         class="topbar-search"
-        placeholder="Search behaviors…"
+        placeholder="Search behaviors&hellip;"
         aria-label="Search behaviors"
         oninput="handleTopbarSearch()"
       />
@@ -319,7 +325,7 @@
   <input
     type="search"
     id="mobileSearch"
-    placeholder="Search behaviors…"
+    placeholder="Search behaviors&hellip;"
     aria-label="Search behaviors"
     oninput="handleMobileSearch()"
   />
@@ -386,7 +392,7 @@
   <div class="atlas-panel" id="panel-guide">
     <div class="guide-wrap">
       <div class="guide-opener">
-        This tab asks a few questions and points you to a pattern. Take it or leave it.
+        Answer three questions. Land on a pattern. Use it however it&rsquo;s useful.
       </div>
 
       <div class="guide-step active" id="gStep1">
