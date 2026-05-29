@@ -1,7 +1,11 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js  v2.3.0
+   RELATIONSHIP REGULATION ATLAS — app.js  v2.4.0
    Browse, Cycles, Where am I? + Resourcing layer (phase 1)
-   v2.3.0: Over-explaining progressive disclosure card (Option 3)
+   v2.4.0: Over-explaining v5 — reframe visible by default,
+           grounding prompt before depth toggle,
+           depth restructured: what if / what holds × 2 / one move,
+           Typical pairing removed (button only),
+           detail-eyebrow shared style for all behavior cards
    ============================================================ */
 
 // — ANCHOR ————————————————————————————————————————————————
@@ -148,7 +152,8 @@ function renderTable() {
   if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
-// — OVER-EXPLAINING CARD (Option 3: Progressive Disclosure) ————
+// — OVER-EXPLAINING CARD v5 ————————————————————————————————
+// Reframe visible by default · grounding prompt · depth restructured
 function buildOverExplainingCard(b) {
   const tagClass = clusterColors[b.cluster] || '';
   const warm     = warmNames[b.name] || '';
@@ -178,14 +183,20 @@ function buildOverExplainingCard(b) {
 
       <div class="oe-preview">
         <div class="oe-block">
-          <span class="oe-label">Short-term logic</span>
+          <span class="oe-eyebrow">Short-term logic</span>
           <p>${b.logic}</p>
         </div>
         <div class="oe-block">
-          <span class="oe-label">Long-term cost</span>
+          <span class="oe-eyebrow">Long-term cost</span>
           <p>${b.cost}</p>
         </div>
       </div>
+
+      <div class="oe-reframe">
+        <p>This is a defense you built for a reason. Not a flaw in you.</p>
+      </div>
+
+      <p class="oe-threshold">Feel your feet, or the chair, before you read on.</p>
 
       <button class="oe-toggle" aria-expanded="false" onclick="toggleOeDepth(this)">
         <span class="oe-toggle-text">Go deeper</span>
@@ -196,20 +207,20 @@ function buildOverExplainingCard(b) {
         <div class="oe-depth-inner">
           <div class="oe-depth-grid">
             <div class="oe-block">
-              <span class="oe-label">Resistance</span>
-              <p>${b.resistance}</p>
+              <span class="oe-eyebrow">What if it comes true</span>
+              <p>You say it once, you stop explaining, and they still don't get it. The gap is real and it stays. They don't change their mind, and you didn't earn the understanding you were working for.</p>
             </div>
             <div class="oe-block">
-              <span class="oe-label">What I fear if I stop</span>
-              <p>${b.fear}</p>
+              <span class="oe-eyebrow">What holds: inside you</span>
+              <p>You've already lived through being misunderstood and kept going. You're not actually managed by it. Knowing the truth, even an unwanted one, is something you've carried before and can carry again.</p>
             </div>
             <div class="oe-block">
-              <span class="oe-label">What it protects me from seeing</span>
-              <p>${b.protects}</p>
+              <span class="oe-eyebrow">What holds: with another person</span>
+              <p>When you're ready: one person who lets the gap be real without rushing to fix it shows you that being incompletely understood isn't the same as being left.</p>
             </div>
-            <div class="oe-block oe-block-healthier">
-              <span class="oe-label">A way through</span>
-              <p>${b.healthier}</p>
+            <div class="oe-block oe-block-move">
+              <span class="oe-eyebrow">One move</span>
+              <p>Say the thing once. Then stop, and let the silence sit for one breath without adding to it.</p>
             </div>
           </div>
         </div>
@@ -219,7 +230,6 @@ function buildOverExplainingCard(b) {
       ${floorBlock}
 
       <div class="detail-footer" style="margin-top:var(--space-6)">
-        <span class="small muted">Typical pairing: ${b.pairNote}</span>
         <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
           See what happens when this meets another pattern &rarr;
         </button>
@@ -230,10 +240,10 @@ function buildOverExplainingCard(b) {
 }
 
 function toggleOeDepth(btn) {
-  const depth   = document.getElementById('oeDepth');
-  const inner   = depth ? depth.querySelector('.oe-depth-inner') : null;
-  const textEl  = btn.querySelector('.oe-toggle-text');
-  const iconEl  = btn.querySelector('.oe-toggle-icon');
+  const depth  = document.getElementById('oeDepth');
+  const inner  = depth ? depth.querySelector('.oe-depth-inner') : null;
+  const textEl = btn.querySelector('.oe-toggle-text');
+  const iconEl = btn.querySelector('.oe-toggle-icon');
   if (!depth || !inner) return;
 
   const isOpen = depth.classList.contains('open');
@@ -263,38 +273,33 @@ function toggleDetail(b, tr) {
   dr.id = 'detailRow';
   dr.className = 'detail-row';
 
-  // Entitlement — phase 1: open/static.
   const entitled = true;
-
   let innerContent;
 
   if (b.name === 'Over-explaining') {
-    // Option 3: progressive disclosure card
     innerContent = buildOverExplainingCard(b);
   } else {
-    // Default: generic detail grid for all other behaviors
     const hasResourcingEntry = typeof resourcing !== 'undefined' && resourcing[b.name];
     const resourcingBlock = hasResourcingEntry
       ? (entitled
-          ? (typeof renderResourcing  === 'function' ? renderResourcing(b)  : '')
-          : (typeof renderLockedDoor  === 'function' ? renderLockedDoor()   : ''))
+          ? (typeof renderResourcing === 'function' ? renderResourcing(b)  : '')
+          : (typeof renderLockedDoor === 'function' ? renderLockedDoor()   : ''))
       : '';
     const floorBlock = typeof renderSafetyFloor === 'function' ? renderSafetyFloor() : '';
 
     innerContent = `
       <div class="detail-content-inner">
         <div class="detail-grid">
-          <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
-          <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
-          <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
-          <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
-          <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
-          <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
+          <div class="detail-block"><span class="detail-eyebrow">Short-term logic</span>${b.logic}</div>
+          <div class="detail-block"><span class="detail-eyebrow">Long-term cost</span>${b.cost}</div>
+          <div class="detail-block"><span class="detail-eyebrow">Resistance</span>${b.resistance}</div>
+          <div class="detail-block"><span class="detail-eyebrow">What it protects me from seeing</span>${b.protects}</div>
+          <div class="detail-block"><span class="detail-eyebrow">What I fear if I stop</span>${b.fear}</div>
+          <div class="detail-block"><span class="detail-eyebrow">A way through</span>${b.healthier}</div>
         </div>
         ${resourcingBlock}
         ${floorBlock}
         <div class="detail-footer">
-          <span class="small muted">Typical pairing: ${b.pairNote}</span>
           <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
             See what happens when this meets another pattern &rarr;
           </button>
