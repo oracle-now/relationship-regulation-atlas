@@ -68,9 +68,9 @@ body {
 /* --- LAYOUT --- */
 .wrap { max-width:1200px; margin:0 auto; padding:var(--space-4) }
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    ORB ENTRY FLOW
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 .orb-entry {
   min-height:100vh;
   display:flex;
@@ -570,9 +570,12 @@ tbody tr.clickable { cursor:pointer }
   margin-top:var(--space-6);
 }
 
-/* ═══════════════════════════════════════════════════
-   RESOURCING LAYER
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   RESOURCING LAYER — Variation 3 (Synthesis)
+   • r-label: sentence-case italic (not uppercase)
+   • "What if it comes true" body: full --color-text (not muted)
+   • r-internal and r-external: teal left-border (same as r-move)
+═══════════════════════════════════════════════ */
 
 .resourcing {
   margin-top:var(--space-6);
@@ -598,6 +601,8 @@ tbody tr.clickable { cursor:pointer }
   font-style:normal;
   line-height:1.6;
   margin:0 0 var(--space-6);
+  padding-bottom:var(--space-5);
+  border-bottom:1px solid oklch(from var(--color-text) l c h / 0.08);
 }
 
 .r-rail {
@@ -616,18 +621,51 @@ tbody tr.clickable { cursor:pointer }
   max-width:68ch;
 }
 
-/* r-label: category marker — muted, not primary */
+/*
+  Synthesis r-label: sentence-case italic.
+  The register shift is carried by the label itself (italic, sentence case),
+  not by uppercase structural weight. This creates a softer, more personal
+  entry into each section compared to the Director's all-caps labels.
+*/
 .r-label {
   display:block;
-  font-size:var(--text-xs);
-  text-transform:uppercase;
-  letter-spacing:.06em;
+  font-size:var(--text-sm);
+  font-style:italic;
   color:var(--color-text-muted);
-  font-weight:500;
+  font-weight:400;
+  letter-spacing:0;
+  text-transform:none;
   margin:0 0 var(--space-2);
 }
 
+/*
+  "What if it comes true" body text is full --color-text, not muted.
+  In Synthesis, this paragraph carries the hardest truth and must
+  read at full weight -- stepping it back to muted undersells it.
+*/
+.r-block p {
+  margin:var(--space-2) 0 0;
+  max-width:68ch;
+  color:var(--color-text);
+}
+
+/*
+  r-move: the actionable "One move" block.
+  Left border signals forward motion -- teal = primary.
+*/
 .r-block.r-move {
+  padding-left:var(--space-4);
+  border-left:2px solid var(--color-primary);
+}
+
+/*
+  Synthesis adds the same left-border treatment to r-internal and r-external.
+  These are the "What holds" blocks -- grounding anchors that work like
+  the move but look inward and outward. The border visually brackets
+  all three holding/moving elements together.
+*/
+.r-block.r-internal,
+.r-block.r-external {
   padding-left:var(--space-4);
   border-left:2px solid var(--color-primary);
 }
@@ -753,9 +791,9 @@ tbody tr.clickable { cursor:pointer }
   outline:none;
 }
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    MOTION SAFETY
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .detail-content-inner,
   .resourcing,
