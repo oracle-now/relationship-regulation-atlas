@@ -1,60 +1,131 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js
-   Atlas UI: tabs, matrix, row expand, cycle map,
-   theme toggle, view toggle, territory map.
-   Anchor passed in via ?anchor= URL param from orb flow.
+   RELATIONSHIP REGULATION ATLAS — app.js  v2
+   Browse (two-col + smooth expand), Cycles, Where am I?
+   Topbar search always active. Anchor via ?anchor= param.
    ============================================================ */
 
-// ── ANCHOR FROM URL ────────────────────────────────────────────────
+// ── ANCHOR ────────────────────────────────────────────────────
 const _urlAnchor = new URLSearchParams(window.location.search).get('anchor') || null;
-const orbState = { anchor: _urlAnchor };
+const orbState   = { anchor: _urlAnchor };
 
-// ── ATLAS STATE ───────────────────────────────────────────────────
-const clusters = () => ['All', ...new Set(behaviors.map(b => b.cluster))];
+// ── CLUSTER META ──────────────────────────────────────────────
+const clusterColors = {
+  'Sexual / Romantic':          'ctag-sexual',
+  'Communication / Conflict':   'ctag-comms',
+  'Control / Over-functioning': 'ctag-control',
+  'Mind / Fantasy / Spirit':    'ctag-mind',
+  'Collapse / Shutdown':        'ctag-collapse',
+};
+
+// Warm colloquial secondary names for recognition cards
+const warmNames = {
+  'Outsourcing erotic energy':   'keeping desire at a distance',
+  'Distancing after intimacy':   'pulling back after closeness',
+  'Over-explaining':             'trying to make them understand',
+  'Stonewalling':                'going completely silent',
+  'Explosive anger / protest':   'letting it all out at once',
+  'Sarcasm and deflection':      'keeping it light to stay safe',
+  'Overworking':                 'staying too busy to feel it',
+  'Caretaking / rescuing':       'fixing so you don\'t have to feel',
+  'Hyper-monitoring / surveillance': 'watching for the thing you dread',
+  'Intellectualizing':           'analyzing instead of feeling',
+  'Spiritual bypassing':         'rising above instead of going in',
+  'Retreating into fantasy':     'living in a better version of this',
+  'Emotional shutdown / collapse': 'powering all the way down',
+  'Functional freeze':           'holding still until it\'s safer',
+  'Emotional numbing':           'turning the volume down on everything',
+};
+
+// ── TAB SYSTEM ────────────────────────────────────────────────
+document.querySelectorAll('.atlas-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.atlas-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('.atlas-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    const panel = document.getElementById('panel-' + tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+    // If switching to cycles, init selects if not yet done
+    if (tab.dataset.tab === 'cycles' && !document.getElementById('aSelect').children.length) fillSelects();
+  });
+});
+
+// Open guide tab if URL hash is #guide
+if (window.location.hash === '#guide') {
+  document.querySelector('[data-tab="guide"]').click();
+}
+
+// ── TOPBAR SEARCH ─────────────────────────────────────────────
+function handleTopbarSearch() {
+  // Switch to browse tab
+  document.querySelector('[data-tab="browse"]').click();
+  renderTable();
+}
+
+// ── CLUSTER TABS ──────────────────────────────────────────────
 let activeCluster = 'All';
-let openRow = null;
 
-// ── TABS ──────────────────────────────────────────────────────────
 function renderTabs() {
-  const tabs = document.getElementById('clusterTabs');
-  tabs.innerHTML = '';
-  clusters().forEach(c => {
+  const tabsEl = document.getElementById('clusterTabs');
+  tabsEl.innerHTML = '';
+  const all = ['All', ...new Set(behaviors.map(b => b.cluster))];
+  all.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'tab' + (c === activeCluster ? ' active' : '');
     btn.textContent = c;
     btn.onclick = () => { activeCluster = c; renderTabs(); renderTable(); };
-    tabs.appendChild(btn);
+    tabsEl.appendChild(btn);
   });
 }
 
-// ── MATRIX TABLE ──────────────────────────────────────────────────
+// ── BROWSE TABLE ──────────────────────────────────────────────
+let openDetailRow = null;
+
 function renderTable() {
   const body = document.getElementById('matrixBody');
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  const q = (document.getElementById('topbarSearch').value || '').toLowerCase();
   body.innerHTML = '';
+  openDetailRow = null;
+
   const filtered = behaviors.filter(b =>
     (activeCluster === 'All' || b.cluster === activeCluster) &&
     (!q || b.name.toLowerCase().includes(q) ||
            b.logic.toLowerCase().includes(q) ||
-           b.cluster.toLowerCase().includes(q))
+           b.cluster.toLowerCase().includes(q) ||
+           (b.moves || []).join(' ').toLowerCase().includes(q))
   );
 
   if (filtered.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="5"><div class="matrix-empty">Nothing matches &mdash; try a different word, or clear the search.</div></td>`;
+    tr.innerHTML = `<td colspan="2"><div class="matrix-empty">Nothing matches &mdash; try a different word or clear the search.</div></td>`;
     body.appendChild(tr);
     return;
   }
 
+  // Cluster section headers when viewing All
+  let lastCluster = null;
   filtered.forEach(b => {
+    if (activeCluster === 'All' && b.cluster !== lastCluster) {
+      lastCluster = b.cluster;
+      const hdr = document.createElement('tr');
+      hdr.className = 'cluster-header';
+      hdr.innerHTML = `<td colspan="2">${b.cluster}</td>`;
+      body.appendChild(hdr);
+    }
+
+    const tagClass = clusterColors[b.cluster] || '';
     const tr = document.createElement('tr');
     tr.className = 'clickable';
+    if (b.name === orbState.anchor) tr.classList.add('anchor-highlight');
     tr.innerHTML = `
-      <td><strong>${b.name}</strong><div class="small">${b.cluster}</div></td>
-      <td><div class="moves">${b.moves.map(m => `<span class="tag">${m}</span>`).join('')}</div></td>
-      <td class="small">${b.logic}</td>
-      <td class="small">${b.cost}</td>
-      <td class="small">${b.resistance}</td>
+      <td>
+        <strong>${b.name}</strong>
+        ${warmNames[b.name] ? `<div class="small" style="color:var(--color-text-muted);font-style:italic;margin-top:.15rem">${warmNames[b.name]}</div>` : ''}
+      </td>
+      <td><span class="cluster-tag ${tagClass}" aria-hidden="true"></span><span class="small muted">${b.cluster}</span></td>
     `;
     tr.onclick = () => toggleDetail(b, tr);
     body.appendChild(tr);
@@ -63,77 +134,81 @@ function renderTable() {
   if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
-// ── ROW EXPAND ────────────────────────────────────────────────────
+// ── SMOOTH ROW EXPAND ─────────────────────────────────────────
 function toggleDetail(b, tr) {
+  // Close existing
   const existing = document.getElementById('detailRow');
-  if (existing) existing.remove();
-  if (openRow === tr) { openRow = null; return; }
-  openRow = tr;
+  if (existing) {
+    const inner = existing.querySelector('.detail-inner');
+    inner.classList.remove('open');
+    setTimeout(() => existing.remove(), 260);
+    if (openDetailRow === tr) { openDetailRow = null; return; }
+  }
+  openDetailRow = tr;
   const dr = document.createElement('tr');
   dr.id = 'detailRow';
+  dr.className = 'detail-row';
   dr.innerHTML = `
-    <td colspan="5" style="padding:0">
-      <div class="detail-panel open">
-        <strong style="font-family:var(--font-display)">${b.name} — full picture</strong>
-        <div class="detail-grid">
-          <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
-          <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
-          <div class="detail-block"><strong>What my partner's behavior lets me avoid</strong>${b.partnerAvoids}</div>
-          <div class="detail-block"><strong>Healthier version of this move</strong>${b.healthier}</div>
-          <div class="detail-block"><strong>Typical pairing cycle</strong>${b.pairNote}</div>
-          <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
+    <td colspan="2">
+      <div class="detail-inner" id="detailInner">
+        <div class="detail-inner-content">
+          <div class="detail-grid" style="margin-top:0">
+            <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
+            <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
+            <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
+            <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
+            <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
+            <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
+          </div>
+          <div style="margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px solid var(--color-border)">
+            <div class="small muted" style="margin-bottom:var(--space-2)">Typical pairing cycle: ${b.pairNote}</div>
+            <button class="btn" style="font-size:var(--text-xs)" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">See what happens when this meets another pattern &rarr;</button>
+          </div>
         </div>
       </div>
     </td>
   `;
   tr.after(dr);
+  // Trigger animation next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('detailInner').classList.add('open');
+    });
+  });
 }
 
-// ── ANCHOR HIGHLIGHT ──────────────────────────────────────────────
+// ── ANCHOR HIGHLIGHT ──────────────────────────────────────────
 function highlightAnchor(name) {
   requestAnimationFrame(() => {
-    const rows = document.querySelectorAll('#matrixBody tr');
-    rows.forEach(row => {
+    document.querySelectorAll('#matrixBody tr').forEach(row => {
       const strong = row.querySelector('strong');
       if (strong && strong.textContent.trim() === name) {
         row.classList.add('anchor-highlight');
         row.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const b = behaviors.find(bh => bh.name === name);
-        if (b) updateHeroPanel(b);
+        if (b) {
+          setTimeout(() => toggleDetail(b, row), 400);
+        }
       }
     });
   });
 }
 
-function updateHeroPanel(b) {
-  document.getElementById('heroPanelTitle').textContent = b.name;
-  document.getElementById('heroPanelBody').innerHTML = `
-    <div class="stage"><strong>Where you are:</strong> ${b.cluster}</div>
-    <div class="stage"><strong>Short-term logic:</strong> ${b.logic}</div>
-    <div class="stage"><strong>The cost:</strong> ${b.cost}</div>
-    <div class="stage" style="margin-top:var(--space-3)"><strong>A way through:</strong> ${b.healthier || '—'}</div>
-  `;
-}
-
-// ── CYCLE MAP ──────────────────────────────────────────────────────
+// ── CYCLES TAB ────────────────────────────────────────────────
 function fillSelects() {
   const aSel = document.getElementById('aSelect');
   const bSel = document.getElementById('bSelect');
+  if (!aSel || !bSel) return;
   behaviors.forEach((b, i) => {
     [aSel, bSel].forEach(sel => {
       const o = document.createElement('option');
       o.value = i;
-      // Shorter label: just the behavior name
       o.textContent = b.name;
       sel.appendChild(o);
     });
   });
-  if (orbState.anchor) {
-    const anchorIdx = behaviors.findIndex(b => b.name === orbState.anchor);
-    if (anchorIdx > -1) aSel.value = anchorIdx;
-  } else {
-    aSel.value = 1;
-  }
+  const anchorIdx = orbState.anchor ? behaviors.findIndex(b => b.name === orbState.anchor) : -1;
+  aSel.value = anchorIdx > -1 ? anchorIdx : 1;
   bSel.value = 2;
   updateCycle();
   aSel.addEventListener('change', updateCycle);
@@ -145,27 +220,137 @@ function updateCycle() {
   const b = behaviors[+document.getElementById('bSelect').value];
   document.getElementById('aTitle').textContent = a.name;
   document.getElementById('aLogic').textContent = a.logic;
-  document.getElementById('aFear').textContent  = '🔒 Resistance: ' + a.resistance;
+  document.getElementById('aFear').textContent  = 'Resistance: ' + a.resistance;
   document.getElementById('bTitle').textContent = b.name;
   document.getElementById('bLogic').textContent = b.logic;
-  document.getElementById('bFear').textContent  = '🔒 Resistance: ' + b.resistance;
+  document.getElementById('bFear').textContent  = 'Resistance: ' + b.resistance;
   document.getElementById('cycleOut').innerHTML = `
     <strong>What this cycle looks like:</strong><br>
-    When Partner A uses <em>${a.name}</em>—${a.logic.toLowerCase()}—Partner B often responds with <em>${b.name}</em>.
+    When one person uses <em>${a.name}</em> &mdash; ${a.logic.toLowerCase()} &mdash;
+    the other often responds with <em>${b.name}</em>.
     <br><br>
     <strong>The loop:</strong> ${a.pairNote}<br>
-    <strong>B’s side adds:</strong> ${b.pairNote}
+    <strong>The other side:</strong> ${b.pairNote}
     <br><br>
-    <strong>Where both people are stuck:</strong>
-    Partner A fears that ${a.fear.toLowerCase()}
-    Partner B fears that ${b.fear.toLowerCase()}
+    <strong>Where both people are stuck:</strong><br>
+    One fears that ${a.fear.toLowerCase()}<br>
+    The other fears that ${b.fear.toLowerCase()}
     <br><br>
-    <strong>A way through:</strong> ${a.healthier}
-    On the other side, ${b.healthier.toLowerCase()}
+    <strong>A way through:</strong> ${a.healthier} On the other side: ${b.healthier.toLowerCase()}
   `;
 }
 
-// ── THEME TOGGLE ──────────────────────────────────────────────────
+function goToCycles(behaviorName) {
+  document.querySelector('[data-tab="cycles"]').click();
+  if (!document.getElementById('aSelect').children.length) fillSelects();
+  const idx = behaviors.findIndex(b => b.name === behaviorName);
+  if (idx > -1) {
+    document.getElementById('aSelect').value = idx;
+    updateCycle();
+  }
+}
+
+// ── WHERE AM I — GUIDE ────────────────────────────────────────
+const gState = { energy: null, direction: null, anchor: null };
+
+const gDistrictMap = {
+  activated: {
+    toward: ['Communication / Conflict', 'Control / Over-functioning'],
+    away:   ['Communication / Conflict', 'Sexual / Romantic'],
+    both:   ['Communication / Conflict', 'Control / Over-functioning'],
+  },
+  collapsed: {
+    toward: ['Mind / Fantasy / Spirit', 'Control / Over-functioning'],
+    away:   ['Collapse / Shutdown', 'Mind / Fantasy / Spirit'],
+    both:   ['Collapse / Shutdown', 'Control / Over-functioning'],
+  },
+  unsure: {
+    toward: ['Control / Over-functioning', 'Communication / Conflict'],
+    away:   ['Collapse / Shutdown', 'Sexual / Romantic'],
+    both:   ['Communication / Conflict', 'Collapse / Shutdown'],
+  },
+};
+
+function gAdvance(toStep, value) {
+  if (toStep === 2) gState.energy    = value;
+  if (toStep === 3) gState.direction = value;
+  if (toStep === 4) gState.anchor    = value;
+
+  if (toStep === 3) buildGRecCards();
+  if (toStep === 4) buildGResult();
+
+  document.querySelectorAll('.guide-step').forEach(s => s.classList.remove('active'));
+  const stepMap = { 2:'gStep2', 3:'gStep3', 4:'gResult' };
+  const next = document.getElementById(stepMap[toStep]);
+  if (next) {
+    next.classList.add('active');
+    const f = next.querySelector('button, input');
+    if (f) setTimeout(() => f.focus(), 50);
+  }
+}
+
+function gBack(toStep) {
+  document.querySelectorAll('.guide-step').forEach(s => s.classList.remove('active'));
+  const stepMap = { 1:'gStep1', 2:'gStep2', 3:'gStep3' };
+  const prev = document.getElementById(stepMap[toStep]);
+  if (prev) {
+    prev.classList.add('active');
+    const f = prev.querySelector('button');
+    if (f) setTimeout(() => f.focus(), 50);
+  }
+}
+
+function buildGRecCards() {
+  const energy    = gState.energy    || 'unsure';
+  const direction = gState.direction || 'both';
+  const clusters  = (gDistrictMap[energy] && gDistrictMap[energy][direction]) || [];
+  const matched   = behaviors.filter(b => clusters.includes(b.cluster)).slice(0, 4);
+  const list      = matched.length ? matched : behaviors.slice(0, 4);
+  const container = document.getElementById('gRecCards');
+  container.innerHTML = '';
+  list.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'guide-rec-card';
+    btn.innerHTML = `
+      <strong class="grec-name">${b.name}</strong>
+      ${warmNames[b.name] ? `<span class="grec-warm">${warmNames[b.name]}</span>` : ''}
+      <span class="grec-logic">${b.logic}</span>
+    `;
+    btn.addEventListener('click', () => gAdvance(4, b.name));
+    container.appendChild(btn);
+  });
+}
+
+function buildGResult() {
+  const b = behaviors.find(bh => bh.name === gState.anchor);
+  if (!b) return;
+  document.getElementById('gResultName').textContent = b.name;
+  document.getElementById('gResultBody').innerHTML = `
+    <div style="margin-bottom:var(--space-3)">${b.logic}</div>
+    <div style="margin-bottom:var(--space-3)"><strong>The cost:</strong> ${b.cost}</div>
+    <div><strong>A way through:</strong> ${b.healthier}</div>
+  `;
+}
+
+function gSkip() {
+  document.querySelector('[data-tab="browse"]').click();
+}
+
+function gGoToBrowse() {
+  orbState.anchor = gState.anchor;
+  document.querySelector('[data-tab="browse"]').click();
+  setTimeout(() => highlightAnchor(gState.anchor), 100);
+}
+
+function gReset() {
+  gState.energy = null; gState.direction = null; gState.anchor = null;
+  document.querySelectorAll('.guide-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('gStep1').classList.add('active');
+  const f = document.querySelector('#gStep1 button');
+  if (f) f.focus();
+}
+
+// ── THEME TOGGLE ──────────────────────────────────────────────
 (function () {
   const d = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', d);
@@ -177,140 +362,7 @@ function updateCycle() {
   });
 })();
 
-// ── VIEW TOGGLE ──────────────────────────────────────────────────
-(function () {
-  const btn = document.getElementById('viewToggle');
-  if (!btn) return;
-  const root = document.documentElement;
-  // Restore view from URL hash if present
-  if (window.location.hash === '#territory') {
-    root.setAttribute('data-view', 'spatial');
-    btn.innerHTML = '&#9635; Matrix';
-    renderTerritory();
-  }
-  let view = root.getAttribute('data-view') === 'spatial' ? 'spatial' : 'matrix';
-  btn.addEventListener('click', () => {
-    view = view === 'matrix' ? 'spatial' : 'matrix';
-    root.setAttribute('data-view', view);
-    history.replaceState(null, '', view === 'spatial' ? '#territory' : window.location.pathname + window.location.search);
-    if (view === 'spatial') {
-      btn.innerHTML = '&#9635; Matrix';
-      btn.setAttribute('aria-label', 'Switch to matrix view');
-      renderTerritory();
-    } else {
-      btn.innerHTML = '&#9671; Territory';
-      btn.setAttribute('aria-label', 'Switch to territory view');
-    }
-  });
-})();
-
-// ── TERRITORY MAP ─────────────────────────────────────────────────
-function getBehaviorPosition(b) {
-  const moves = b.moves || [];
-  const hasToward   = moves.some(m => /toward|pursue|reach|connect|pull|plea|protest|demand|cling|fawn|fix|perform|over-explain|bid/i.test(m));
-  const hasAway     = moves.some(m => /away|withdraw|avoid|shut|stone|silent|escape|detach|disappear|deflect|minimize|dismiss|armor/i.test(m));
-  const hasActivate = moves.some(m => /discharge|control|pursue|rage|escalate|anxiety|alarm|protest|flood/i.test(m));
-  const hasCollapse = moves.some(m => /numb|transform|freeze|dissociate|collapse|gone|fade|still|quiet|soothe/i.test(m));
-  const clusterMap = {
-    'Communication / Conflict':   { qx: 0, qy: 0 },
-    'Control / Over-functioning': { qx: 0, qy: 0 },
-    'Sexual / Romantic':          { qx: 1, qy: 0 },
-    'Mind / Fantasy / Spirit':    { qx: 1, qy: 1 },
-    'Collapse / Shutdown':        { qx: 1, qy: 1 },
-  };
-  const fallback = clusterMap[b.cluster] || { qx: 0, qy: 0 };
-  const qx = hasToward ? 0 : hasAway ? 1 : fallback.qx;
-  const qy = hasActivate ? 0 : hasCollapse ? 1 : fallback.qy;
-  const centers = [
-    { cx: 175, cy: 170 }, { cx: 515, cy: 170 },
-    { cx: 175, cy: 390 }, { cx: 515, cy: 390 },
-  ];
-  const idx = qy * 2 + qx;
-  const center = centers[idx];
-  const seed = b.name.length * 37 + b.cluster.length * 13;
-  const angle = (seed % 360) * Math.PI / 180;
-  const radius = 20 + (seed % 80);
-  return {
-    x: Math.round(center.cx + Math.cos(angle) * radius),
-    y: Math.round(center.cy + Math.sin(angle) * radius),
-    district: idx
-  };
-}
-
-const districtColors = ['#c45c2a', '#3a6b8a', '#3a7a48', '#6a5c8a'];
-let selectedNode = null;
-
-function renderTerritory() {
-  const g = document.getElementById('behaviorNodes');
-  if (g.childElementCount > 0) return;
-  behaviors.forEach((b, i) => {
-    const pos = getBehaviorPosition(b);
-    const color = districtColors[pos.district];
-    const isAnchor = b.name === orbState.anchor;
-    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    hit.setAttribute('cx', pos.x); hit.setAttribute('cy', pos.y);
-    hit.setAttribute('r', '16'); hit.setAttribute('fill', 'transparent');
-    hit.style.cursor = 'pointer';
-    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    dot.setAttribute('cx', pos.x); dot.setAttribute('cy', pos.y);
-    dot.setAttribute('r', isAnchor ? '8' : '5');
-    dot.setAttribute('fill', color);
-    dot.setAttribute('opacity', isAnchor ? '1' : '0.75');
-    dot.style.transition = 'r 0.15s ease, opacity 0.15s ease';
-    dot.classList.add('behavior-dot'); dot.dataset.idx = i;
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', pos.x + 8); label.setAttribute('y', pos.y + 4);
-    label.setAttribute('font-size', '8'); label.setAttribute('font-family', 'Satoshi, sans-serif');
-    label.setAttribute('fill', color);
-    label.setAttribute('opacity', isAnchor ? '0.9' : '0');
-    label.classList.add('behavior-label'); label.dataset.idx = i;
-    label.textContent = b.name;
-    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.classList.add('behavior-node'); grp.dataset.idx = i;
-    grp.appendChild(hit); grp.appendChild(dot); grp.appendChild(label);
-    grp.addEventListener('mouseenter', () => {
-      dot.setAttribute('r', '7'); dot.setAttribute('opacity', '1'); label.setAttribute('opacity', '0.7');
-    });
-    grp.addEventListener('mouseleave', () => {
-      if (selectedNode !== i) {
-        dot.setAttribute('r', isAnchor ? '8' : '5');
-        dot.setAttribute('opacity', isAnchor ? '1' : '0.75');
-        label.setAttribute('opacity', isAnchor ? '0.9' : '0');
-      }
-    });
-    grp.addEventListener('click', () => {
-      if (selectedNode !== null) {
-        const prev = g.querySelector(`[data-idx="${selectedNode}"] .behavior-dot`);
-        const prevLabel = g.querySelector(`[data-idx="${selectedNode}"] .behavior-label`);
-        if (prev) { prev.setAttribute('r', '5'); prev.setAttribute('opacity', '0.75'); }
-        if (prevLabel) prevLabel.setAttribute('opacity', '0');
-      }
-      selectedNode = i;
-      dot.setAttribute('r', '8'); dot.setAttribute('opacity', '1'); label.setAttribute('opacity', '0.9');
-      showTerritoryDetail(b, color);
-    });
-    g.appendChild(grp);
-    if (isAnchor) { selectedNode = i; showTerritoryDetail(b, color); }
-  });
-}
-
-function showTerritoryDetail(b, color) {
-  document.getElementById('tdEmpty').style.display = 'none';
-  document.getElementById('tdContent').style.display = 'block';
-  document.getElementById('tdCluster').textContent = b.cluster;
-  document.getElementById('tdName').textContent = b.name;
-  document.getElementById('tdName').style.color = color;
-  document.getElementById('tdLogic').textContent = b.logic;
-  document.getElementById('tdCost').textContent = b.cost;
-  document.getElementById('tdProtects').textContent = b.protects || '—';
-  document.getElementById('tdFear').textContent = b.fear || '—';
-  document.getElementById('tdHealthier').textContent = b.healthier || '—';
-  document.getElementById('tdPairNote').textContent = b.pairNote || '—';
-  document.getElementById('tdMoves').innerHTML = (b.moves || []).map(m => `<span class="tag">${m}</span>`).join('');
-}
-
-// ── INIT ──────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────
 renderTabs();
 renderTable();
-fillSelects();
-if (orbState.anchor) highlightAnchor(orbState.anchor);
+if (orbState.anchor) setTimeout(() => highlightAnchor(orbState.anchor), 200);

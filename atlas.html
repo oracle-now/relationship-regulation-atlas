@@ -1,11 +1,200 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-view="matrix">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Regulation Map — Relationship Regulation Atlas</title>
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── TAB SYSTEM ───────────────────────────────────────── */
+    .atlas-tabs {
+      display: flex;
+      gap: .5rem;
+      border-bottom: 1px solid var(--color-border);
+      padding: 0 var(--space-4);
+      max-width: 1200px;
+      margin: 0 auto;
+      position: sticky;
+      top: 56px;
+      background: var(--color-bg);
+      z-index: 9;
+    }
+    .atlas-tab {
+      padding: var(--space-3) var(--space-4);
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .atlas-tab:hover { color: var(--color-text); }
+    .atlas-tab.active {
+      color: var(--color-text);
+      border-bottom-color: var(--color-primary);
+      font-weight: 600;
+    }
+    .atlas-panel { display: none; }
+    .atlas-panel.active { display: block; }
+
+    /* ── BROWSE: TWO-COL DEFAULT ──────────────────────────── */
+    .browse-table th:nth-child(n+3),
+    .browse-table td:nth-child(n+3) { display: none; }
+    .cluster-header td {
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      background: var(--color-surface-2);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* ── SMOOTH ROW EXPAND ────────────────────────────────── */
+    .detail-row td { padding: 0; border-bottom: 1px solid var(--color-border); }
+    .detail-inner {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .25s ease;
+    }
+    .detail-inner.open { grid-template-rows: 1fr; }
+    .detail-inner-content {
+      overflow: hidden;
+      padding: 0 var(--space-4);
+    }
+    .detail-inner.open .detail-inner-content {
+      padding: var(--space-4);
+    }
+
+    /* ── CLUSTER COLOR TAGS ───────────────────────────────── */
+    .cluster-tag {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: .35rem;
+      vertical-align: middle;
+    }
+    .ctag-sexual    { background: #a7435c; }
+    .ctag-comms     { background: #cf6a2f; }
+    .ctag-control   { background: #5a78c9; }
+    .ctag-mind      { background: #8660cc; }
+    .ctag-collapse  { background: #1e7d74; }
+
+    /* ── WHERE AM I GUIDE ─────────────────────────────────── */
+    .guide-wrap {
+      max-width: 520px;
+      margin: var(--space-10) auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .guide-opener {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.7;
+      padding: var(--space-4);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+    }
+    .guide-step { display: none; flex-direction: column; gap: var(--space-4); animation: orbFadeIn .3s ease both; }
+    .guide-step.active { display: flex; }
+    .guide-q {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      line-height: 1.15;
+      margin: 0;
+    }
+    .guide-choices { display: flex; flex-direction: column; gap: var(--space-3); }
+    .guide-choice {
+      display: block; width: 100%; text-align: left;
+      padding: var(--space-4) var(--space-5);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-family: var(--font-body); font-size: var(--text-sm);
+      cursor: pointer; line-height: 1.5;
+      transition: background .15s, border-color .15s, box-shadow .15s;
+    }
+    .guide-choice:hover, .guide-choice:focus-visible {
+      background: var(--color-surface-2);
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+      outline: none;
+    }
+    .guide-back {
+      background: none; border: none;
+      color: var(--color-text-muted);
+      font-family: var(--font-body); font-size: var(--text-sm);
+      cursor: pointer; padding: 0; align-self: flex-start;
+    }
+    .guide-back:hover { color: var(--color-text); }
+    .guide-progress {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      letter-spacing: .04em;
+    }
+    .guide-rec-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+    .guide-rec-card {
+      display: flex; flex-direction: column; gap: .25rem;
+      padding: var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      cursor: pointer; font-family: var(--font-body);
+      text-align: left;
+      transition: border-color .15s, background .15s;
+    }
+    .guide-rec-card:hover, .guide-rec-card:focus-visible {
+      border-color: var(--color-primary);
+      background: var(--color-surface-2);
+      outline: none;
+    }
+    .grec-name  { font-size: var(--text-sm); font-weight: 700; color: var(--color-text); }
+    .grec-warm  { font-size: var(--text-xs); color: var(--color-primary); font-style: italic; }
+    .grec-logic {
+      font-size: var(--text-xs); color: var(--color-text-muted); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .guide-skip {
+      background: none; border: none;
+      color: var(--color-text-muted); font-family: var(--font-body);
+      font-size: var(--text-sm); cursor: pointer;
+      text-decoration: underline; padding: 0; align-self: flex-start;
+    }
+    .guide-skip:hover { color: var(--color-text); }
+    .guide-result {
+      padding: var(--space-5);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+    .guide-result-label {
+      font-size: var(--text-xs); font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--color-primary); margin-bottom: var(--space-2);
+    }
+    .guide-result-name {
+      font-family: var(--font-display);
+      font-size: var(--text-xl); margin: 0 0 var(--space-3);
+    }
+    @media (max-width: 600px) {
+      .guide-rec-cards { grid-template-columns: 1fr; }
+    }
+
+    /* ── CYCLE MAP ────────────────────────────────────────── */
+    .cycles-wrap { max-width: 820px; padding: var(--space-6) 0; }
+  </style>
 </head>
 <body>
 
@@ -21,94 +210,77 @@
       </a>
     </div>
     <div class="toolbar">
+      <input type="search" id="topbarSearch" placeholder="Search behaviors…" aria-label="Search behaviors"
+        style="max-width:200px;border-radius:999px;padding:.55rem .9rem;font-size:var(--text-sm);font-family:var(--font-body)"
+        oninput="handleTopbarSearch()" />
       <button class="btn" data-theme-toggle aria-label="Toggle theme">&#9680;</button>
-      <button class="btn" id="viewToggle" aria-label="Switch to territory view">&#9671; Territory</button>
       <a class="btn" href="index.html">&larr; All contexts</a>
       <a class="btn" href="references.html">Lineage</a>
     </div>
   </div>
 </div>
 
+<!-- ATLAS TABS -->
+<nav class="atlas-tabs" role="tablist">
+  <button class="atlas-tab active" role="tab" aria-selected="true"  data-tab="browse">Browse</button>
+  <button class="atlas-tab"        role="tab" aria-selected="false" data-tab="cycles">Cycles</button>
+  <button class="atlas-tab"        role="tab" aria-selected="false" data-tab="guide">Where am I?</button>
+</nav>
+
 <main class="wrap">
 
-  <section class="hero">
-    <div class="hero-grid">
-      <div>
-        <span class="eyebrow">Nervous system &middot; Attachment &middot; Relationship cycles</span>
-        <h2>Why do we do what we do&mdash;and what does it cost us?</h2>
-        <p class="sub">The Regulation Map is the core of the atlas. Every behavior here is an attempt to survive something. The map names the logic, the cost, and the way through &mdash; context-free, so you can take it into any relationship.</p>
-        <div class="legend">
-          <div class="chip"><span class="dot d1"></span>Move toward</div>
-          <div class="chip"><span class="dot d2"></span>Move away</div>
-          <div class="chip"><span class="dot d3"></span>Numb</div>
-          <div class="chip"><span class="dot d4"></span>Discharge</div>
-          <div class="chip"><span class="dot d5"></span>Control</div>
-          <div class="chip"><span class="dot d6"></span>Transform</div>
-        </div>
-      </div>
-      <div class="panel pad" id="heroPanel">
-        <h3 style="margin-top:0;font-family:var(--font-display)" id="heroPanelTitle">How to use this map</h3>
-        <div id="heroPanelBody">
-          <div class="stage"><strong>1. Find yourself.</strong> Browse the matrix and notice which behaviors feel familiar. Click any row to expand the full picture.</div>
-          <div class="stage"><strong>2. Map your cycle.</strong> Use the Pairing Map to see what happens when your move meets your partner&rsquo;s move.</div>
-          <div class="stage"><strong>3. Take it somewhere.</strong> Use the hub to explore how these patterns shift in different relational contexts &mdash; work, family, friendship.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div id="matrixView">
-    <section class="section" id="matrix">
-      <h2 class="section-title">The Matrix</h2>
-      <div class="search-wrap">
-        <input type="search" id="searchInput" placeholder="Search behaviors..." oninput="renderTable()" />
-      </div>
-      <div class="tabs" id="clusterTabs"></div>
-      <div class="grid-2">
-        <div class="matrix-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Behavior</th><th>Moves</th><th>Short-term logic</th><th>Long-term cost</th><th>Resistance</th>
-              </tr>
-            </thead>
-            <tbody id="matrixBody"></tbody>
-          </table>
-        </div>
-        <div class="panel pad">
-          <h3 style="margin-top:0;font-family:var(--font-display)">Click any row</h3>
-          <p class="small">Expanding a row reveals the full picture: what triggers this behavior, what it protects you from seeing, what your partner&rsquo;s behavior lets you avoid, and what a healthier version of the same move looks like.</p>
-          <p class="small" style="margin-top:var(--space-3)">Frameworks drawn on include Gottman&rsquo;s Four Horsemen, Orna Guralnik&rsquo;s enactment model, IFS parts language, polyvagal theory, and EFT pursuer&ndash;distancer cycle mapping.</p>
-          <div class="stage" style="margin-top:var(--space-4)">Each behavior is a <em>strategy</em>, not a character flaw. Every row includes the internal logic that makes it make sense.</div>
-        </div>
+  <!-- ══════════════════════════════════════════════════════
+       BROWSE TAB
+  ══════════════════════════════════════════════════════ -->
+  <div class="atlas-panel active" id="panel-browse">
+    <section class="section">
+      <div class="tabs" id="clusterTabs" style="margin-bottom:var(--space-3)"></div>
+      <div class="matrix-wrap">
+        <table class="browse-table">
+          <thead>
+            <tr>
+              <th>Behavior</th>
+              <th>Cluster</th>
+              <th style="display:none">Moves</th>
+              <th style="display:none">Short-term logic</th>
+              <th style="display:none">Long-term cost</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
       </div>
     </section>
+  </div>
 
-    <section class="section" id="pairingMap">
+  <!-- ══════════════════════════════════════════════════════
+       CYCLES TAB
+  ══════════════════════════════════════════════════════ -->
+  <div class="atlas-panel" id="panel-cycles">
+    <section class="section cycles-wrap">
       <h2 class="section-title">Relationship Cycle Map</h2>
-      <p class="sub" style="margin-bottom:var(--space-5)">Choose one behavior for each person. See the likely cycle that emerges&mdash;and where it tends to go.</p>
+      <p class="sub" style="margin-bottom:var(--space-5)">Choose one behavior for each person. See the cycle that tends to emerge &mdash; and where it gets stuck.</p>
       <div class="panel pad">
-        <div class="toolbar" style="margin-bottom:var(--space-4);gap:var(--space-3)">
+        <div class="toolbar" style="margin-bottom:var(--space-4);gap:var(--space-3);flex-wrap:wrap">
           <div>
-            <div class="small" style="margin-bottom:.4rem">Partner A does&hellip;</div>
+            <div class="small" style="margin-bottom:.4rem">Person A</div>
             <select id="aSelect" class="select-ctrl"></select>
           </div>
-          <div style="padding-top:1.4rem;color:var(--color-text-muted)">+</div>
+          <div style="padding-top:1.4rem;color:var(--color-text-muted)">&rarr;</div>
           <div>
-            <div class="small" style="margin-bottom:.4rem">Partner B responds with&hellip;</div>
+            <div class="small" style="margin-bottom:.4rem">Person B</div>
             <select id="bSelect" class="select-ctrl"></select>
           </div>
         </div>
         <div class="cycle-grid">
           <div class="cycle-box">
-            <div class="small muted">Partner A</div>
+            <div class="small muted">Person A</div>
             <h4 id="aTitle" style="margin:.4rem 0 .3rem"></h4>
             <div id="aLogic" class="small"></div>
             <div id="aFear" class="resistance-row"></div>
           </div>
           <div class="cycle-arrow">&rarr;</div>
           <div class="cycle-box">
-            <div class="small muted">Partner B</div>
+            <div class="small muted">Person B</div>
             <h4 id="bTitle" style="margin:.4rem 0 .3rem"></h4>
             <div id="bLogic" class="small"></div>
             <div id="bFear" class="resistance-row"></div>
@@ -119,58 +291,59 @@
     </section>
   </div>
 
-  <div id="territoryView">
-    <section class="section">
-      <h2 class="section-title">The Territory</h2>
-      <p class="sub" style="margin-bottom:var(--space-5)">Each dot is a behavior pattern. Click one to see the full picture. Districts are defined by nervous-system state &mdash; where your energy is, and which direction it moves.</p>
-      <div class="territory-layout">
-        <div class="territory-map-wrap panel">
-          <svg id="territoryMap" viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Territory map of behavior patterns">
-            <defs>
-              <radialGradient id="gReach" cx="30%" cy="30%" r="55%"><stop offset="0%" stop-color="#c45c2a" stop-opacity="0.22"/><stop offset="100%" stop-color="#c45c2a" stop-opacity="0"/></radialGradient>
-              <radialGradient id="gArmor" cx="70%" cy="30%" r="55%"><stop offset="0%" stop-color="#3a6b8a" stop-opacity="0.20"/><stop offset="100%" stop-color="#3a6b8a" stop-opacity="0"/></radialGradient>
-              <radialGradient id="gIntegrate" cx="30%" cy="70%" r="55%"><stop offset="0%" stop-color="#3a7a48" stop-opacity="0.20"/><stop offset="100%" stop-color="#3a7a48" stop-opacity="0"/></radialGradient>
-              <radialGradient id="gVanish" cx="70%" cy="70%" r="55%"><stop offset="0%" stop-color="#6a5c8a" stop-opacity="0.18"/><stop offset="100%" stop-color="#6a5c8a" stop-opacity="0"/></radialGradient>
-              <filter id="blur4"><feGaussianBlur stdDeviation="18"/></filter>
-            </defs>
-            <ellipse cx="195" cy="175" rx="165" ry="145" fill="url(#gReach)" filter="url(#blur4)"/>
-            <ellipse cx="505" cy="175" rx="165" ry="145" fill="url(#gArmor)" filter="url(#blur4)"/>
-            <ellipse cx="195" cy="390" rx="165" ry="145" fill="url(#gIntegrate)" filter="url(#blur4)"/>
-            <ellipse cx="505" cy="390" rx="165" ry="145" fill="url(#gVanish)" filter="url(#blur4)"/>
-            <line x1="350" y1="24" x2="350" y2="536" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
-            <line x1="24" y1="280" x2="676" y2="280" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
-            <text x="350" y="16" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">ACTIVATED</text>
-            <text x="350" y="556" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">COLLAPSED</text>
-            <text x="12" y="284" text-anchor="start" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">TOWARD</text>
-            <text x="688" y="284" text-anchor="end" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">AWAY</text>
-            <text x="80" y="52" font-size="11" font-family="Zodiak,serif" fill="#c45c2a" opacity="0.7" font-weight="700">The Reachers</text>
-            <text x="80" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; toward</text>
-            <text x="420" y="52" font-size="11" font-family="Zodiak,serif" fill="#3a6b8a" opacity="0.7" font-weight="700">The Armored</text>
-            <text x="420" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; away</text>
-            <text x="68" y="468" font-size="11" font-family="Zodiak,serif" fill="#3a7a48" opacity="0.7" font-weight="700">The Integrators</text>
-            <text x="68" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; toward</text>
-            <text x="430" y="468" font-size="11" font-family="Zodiak,serif" fill="#6a5c8a" opacity="0.7" font-weight="700">The Vanished</text>
-            <text x="430" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; away</text>
-            <g id="behaviorNodes"></g>
-            <circle cx="350" cy="280" r="5" fill="currentColor" opacity="0.12"/>
-          </svg>
-        </div>
-        <div class="territory-detail panel pad" id="territoryDetail">
-          <div id="tdEmpty" class="td-empty"><div class="td-hint">&#8678; Click any dot to see the full picture for that pattern.</div></div>
-          <div id="tdContent" style="display:none">
-            <div class="small muted" id="tdCluster"></div>
-            <h3 style="font-family:var(--font-display);margin:.4rem 0 .8rem" id="tdName"></h3>
-            <div class="td-block"><div class="td-label">Short-term logic</div><div id="tdLogic"></div></div>
-            <div class="td-block"><div class="td-label">Long-term cost</div><div id="tdCost"></div></div>
-            <div class="td-block"><div class="td-label">What it protects me from seeing</div><div id="tdProtects"></div></div>
-            <div class="td-block"><div class="td-label">What I fear if I stop</div><div id="tdFear"></div></div>
-            <div class="td-block"><div class="td-label">Healthier version of this move</div><div id="tdHealthier"></div></div>
-            <div class="td-block"><div class="td-label">Typical pairing cycle</div><div id="tdPairNote"></div></div>
-            <div class="moves" id="tdMoves" style="margin-top:var(--space-3)"></div>
-          </div>
+  <!-- ══════════════════════════════════════════════════════
+       WHERE AM I TAB
+  ══════════════════════════════════════════════════════ -->
+  <div class="atlas-panel" id="panel-guide">
+    <div class="guide-wrap">
+      <div class="guide-opener">
+        This tab asks a few questions and points you to a pattern. Take it or leave it.
+      </div>
+
+      <!-- Step 1: Energy -->
+      <div class="guide-step active" id="gStep1">
+        <div class="guide-progress">1 of 3</div>
+        <h2 class="guide-q">How are you arriving right now?</h2>
+        <div class="guide-choices">
+          <button class="guide-choice" onclick="gAdvance(2,'activated')">Activated &mdash; heat, urgency, or something close to panic.</button>
+          <button class="guide-choice" onclick="gAdvance(2,'collapsed')">Collapsed &mdash; quiet, numb, or far away from it.</button>
+          <button class="guide-choice" onclick="gAdvance(2,'unsure')">Somewhere between, or not sure yet.</button>
         </div>
       </div>
-    </section>
+
+      <!-- Step 2: Direction -->
+      <div class="guide-step" id="gStep2">
+        <button class="guide-back" onclick="gBack(1)">&larr; Back</button>
+        <div class="guide-progress">2 of 3</div>
+        <h2 class="guide-q">Which direction does it pull you?</h2>
+        <div class="guide-choices">
+          <button class="guide-choice" onclick="gAdvance(3,'toward')">Toward &mdash; reaching, fixing, asking, or pushing.</button>
+          <button class="guide-choice" onclick="gAdvance(3,'away')">Away &mdash; pulling back, going silent, or disappearing.</button>
+          <button class="guide-choice" onclick="gAdvance(3,'both')">Both, or neither &mdash; it shifts.</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Recognition -->
+      <div class="guide-step" id="gStep3">
+        <button class="guide-back" onclick="gBack(2)">&larr; Back</button>
+        <div class="guide-progress">3 of 3</div>
+        <h2 class="guide-q">Does one of these feel close?</h2>
+        <p class="orb-sub" style="font-size:var(--text-sm);color:var(--color-text-muted);margin:0">Pick the one that lands &mdash; even if it&rsquo;s not exact.</p>
+        <div class="guide-rec-cards" id="gRecCards"></div>
+        <button class="guide-skip" onclick="gSkip()">None of these &mdash; take me to Browse</button>
+      </div>
+
+      <!-- Result -->
+      <div class="guide-step" id="gResult">
+        <div class="guide-result">
+          <div class="guide-result-label">You are here</div>
+          <h2 class="guide-result-name" id="gResultName"></h2>
+          <div id="gResultBody" style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.7"></div>
+        </div>
+        <button class="guide-choice" style="margin-top:var(--space-2)" onclick="gGoToBrowse()">Find it in the map &rarr;</button>
+        <button class="guide-back" onclick="gReset()">Start over</button>
+      </div>
+    </div>
   </div>
 
 </main>
