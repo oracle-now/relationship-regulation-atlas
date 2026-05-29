@@ -9,6 +9,72 @@
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ORB ENTRY FLOW                                                   -->
+<!-- Stages: threshold → locate → recognize → explore                -->
+<!-- The main atlas (#atlasPage) stays hidden until Explore is chosen -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="orbEntry" class="orb-entry" data-stage="threshold">
+
+  <!-- ── STAGE 1: THRESHOLD ── -->
+  <div class="orb-stage" id="stageThreshold">
+    <div class="orb-inner">
+      <div class="orb-logo" aria-hidden="true"></div>
+      <p class="orb-eyebrow">Relationship Regulation Atlas</p>
+      <h1 class="orb-headline">Something is happening<br>between you.</h1>
+      <p class="orb-sub">This atlas helps you name it, locate yourself in it, and find a way through. Start by telling us how you're arriving.</p>
+      <div class="orb-choices">
+        <button class="orb-btn" onclick="orbAdvance('locate', 'activated')">I'm activated — there's heat, urgency, or panic.</button>
+        <button class="orb-btn" onclick="orbAdvance('locate', 'collapsed')">I'm collapsed — I've gone quiet, numb, or far away.</button>
+        <button class="orb-btn" onclick="orbAdvance('locate', 'unsure')">I'm not sure. I just know something feels off.</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STAGE 2: LOCATE ── -->
+  <div class="orb-stage" id="stageLocate" style="display:none">
+    <div class="orb-inner">
+      <button class="orb-back" onclick="orbBack('threshold')">&larr; Back</button>
+      <p class="orb-eyebrow" id="locateEyebrow">You said you're arriving activated</p>
+      <h2 class="orb-headline">Are you moving toward the other person, or away?</h2>
+      <p class="orb-sub">Neither is wrong. Both are strategies. Pick whichever feels closer.</p>
+      <div class="orb-choices">
+        <button class="orb-btn" onclick="orbAdvance('recognize', 'toward')">Toward — I'm reaching, asking, pushing, or trying to fix it.</button>
+        <button class="orb-btn" onclick="orbAdvance('recognize', 'away')">Away — I'm pulling back, shutting down, or going silent.</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STAGE 3: RECOGNIZE ── -->
+  <div class="orb-stage" id="stageRecognize" style="display:none">
+    <div class="orb-inner">
+      <button class="orb-back" onclick="orbBack('locate')">&larr; Back</button>
+      <p class="orb-eyebrow">Recognition cards</p>
+      <h2 class="orb-headline">Does one of these feel like you right now?</h2>
+      <p class="orb-sub">These are the patterns most common to where you said you are. Pick the one that lands — even if it's uncomfortable. This becomes your anchor in the map.</p>
+      <div class="orb-cards" id="recognizeCards"></div>
+      <button class="orb-skip" onclick="orbAdvance('explore', null)">None of these — take me to the full map</button>
+    </div>
+  </div>
+
+  <!-- ── STAGE 4: EXPLORE CTA ── -->
+  <div class="orb-stage" id="stageExplore" style="display:none">
+    <div class="orb-inner">
+      <div class="orb-logo" aria-hidden="true"></div>
+      <p class="orb-eyebrow" id="exploreEyebrow">You're here</p>
+      <h2 class="orb-headline" id="exploreHeadline">You've found your place on the map.</h2>
+      <p class="orb-sub" id="exploreSub">The atlas will open with your pattern highlighted. From here, you can explore the full system — cycles, pairings, and the way through.</p>
+      <button class="orb-btn primary" onclick="orbEnterAtlas()">Open the Atlas &rarr;</button>
+    </div>
+  </div>
+
+</div><!-- /#orbEntry -->
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MAIN ATLAS PAGE (hidden until Explore is triggered)             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="atlasPage" style="display:none">
+
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
@@ -58,9 +124,7 @@
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- MATRIX VIEW                                 -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- MATRIX VIEW -->
   <div id="matrixView">
 
     <section class="section" id="matrix">
@@ -129,9 +193,7 @@
 
   </div><!-- /#matrixView -->
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TERRITORY VIEW                              -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- TERRITORY VIEW -->
   <div id="territoryView">
 
     <section class="section">
@@ -140,11 +202,9 @@
 
       <div class="territory-layout">
 
-        <!-- SVG MAP -->
         <div class="territory-map-wrap panel">
           <svg id="territoryMap" viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Territory map of behavior patterns">
             <defs>
-              <!-- District washes -->
               <radialGradient id="gReach" cx="30%" cy="30%" r="55%">
                 <stop offset="0%" stop-color="#c45c2a" stop-opacity="0.22"/>
                 <stop offset="100%" stop-color="#c45c2a" stop-opacity="0"/>
@@ -163,45 +223,29 @@
               </radialGradient>
               <filter id="blur4"><feGaussianBlur stdDeviation="18"/></filter>
             </defs>
-
-            <!-- District color washes -->
             <ellipse cx="195" cy="175" rx="165" ry="145" fill="url(#gReach)" filter="url(#blur4)"/>
             <ellipse cx="505" cy="175" rx="165" ry="145" fill="url(#gArmor)" filter="url(#blur4)"/>
             <ellipse cx="195" cy="390" rx="165" ry="145" fill="url(#gIntegrate)" filter="url(#blur4)"/>
             <ellipse cx="505" cy="390" rx="165" ry="145" fill="url(#gVanish)" filter="url(#blur4)"/>
-
-            <!-- Compass axes (dotted) -->
             <line x1="350" y1="24" x2="350" y2="536" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
             <line x1="24" y1="280" x2="676" y2="280" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
-
-            <!-- Axis labels -->
             <text x="350" y="16" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">ACTIVATED</text>
             <text x="350" y="556" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">COLLAPSED</text>
             <text x="12" y="284" text-anchor="start" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">TOWARD</text>
             <text x="688" y="284" text-anchor="end" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">AWAY</text>
-
-            <!-- District labels -->
             <text x="80" y="52" font-size="11" font-family="Zodiak,serif" fill="#c45c2a" opacity="0.7" font-weight="700">The Reachers</text>
             <text x="80" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; toward</text>
-
             <text x="420" y="52" font-size="11" font-family="Zodiak,serif" fill="#3a6b8a" opacity="0.7" font-weight="700">The Armored</text>
             <text x="420" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; away</text>
-
             <text x="68" y="468" font-size="11" font-family="Zodiak,serif" fill="#3a7a48" opacity="0.7" font-weight="700">The Integrators</text>
             <text x="68" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; toward</text>
-
             <text x="430" y="468" font-size="11" font-family="Zodiak,serif" fill="#6a5c8a" opacity="0.7" font-weight="700">The Vanished</text>
             <text x="430" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; away</text>
-
-            <!-- Behavior dots rendered by JS -->
             <g id="behaviorNodes"></g>
-
-            <!-- Center resting dot -->
             <circle cx="350" cy="280" r="5" fill="currentColor" opacity="0.12"/>
           </svg>
         </div>
 
-        <!-- DETAIL PANEL -->
         <div class="territory-detail panel pad" id="territoryDetail">
           <div id="tdEmpty" class="td-empty">
             <div class="td-hint">&#8678; Click any dot to see the full picture for that pattern.</div>
@@ -209,35 +253,17 @@
           <div id="tdContent" style="display:none">
             <div class="small muted" id="tdCluster"></div>
             <h3 style="font-family:var(--font-display);margin:.4rem 0 .8rem" id="tdName"></h3>
-            <div class="td-block">
-              <div class="td-label">Short-term logic</div>
-              <div id="tdLogic"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Long-term cost</div>
-              <div id="tdCost"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">What it protects me from seeing</div>
-              <div id="tdProtects"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">What I fear if I stop</div>
-              <div id="tdFear"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Healthier version of this move</div>
-              <div id="tdHealthier"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Typical pairing cycle</div>
-              <div id="tdPairNote"></div>
-            </div>
+            <div class="td-block"><div class="td-label">Short-term logic</div><div id="tdLogic"></div></div>
+            <div class="td-block"><div class="td-label">Long-term cost</div><div id="tdCost"></div></div>
+            <div class="td-block"><div class="td-label">What it protects me from seeing</div><div id="tdProtects"></div></div>
+            <div class="td-block"><div class="td-label">What I fear if I stop</div><div id="tdFear"></div></div>
+            <div class="td-block"><div class="td-label">Healthier version of this move</div><div id="tdHealthier"></div></div>
+            <div class="td-block"><div class="td-label">Typical pairing cycle</div><div id="tdPairNote"></div></div>
             <div class="moves" id="tdMoves" style="margin-top:var(--space-3)"></div>
           </div>
         </div>
 
-      </div><!-- /.territory-layout -->
+      </div>
     </section>
 
   </div><!-- /#territoryView -->
@@ -247,6 +273,8 @@
 <footer style="border-top:1px solid var(--color-border);margin-top:var(--space-12);padding:var(--space-8) var(--space-4);text-align:center">
   <p class="small muted">Relationship Regulation Atlas &mdash; a work in progress. Built with care.</p>
 </footer>
+
+</div><!-- /#atlasPage -->
 
 <script src="data.js"></script>
 <script src="app.js"></script>
