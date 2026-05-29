@@ -113,7 +113,8 @@ body {
   font-weight:700;
   letter-spacing:.08em;
   text-transform:uppercase;
-  color:var(--color-primary);
+  /* structural label — not a CTA, not a link */
+  color:var(--color-text-muted);
   margin:0;
 }
 
@@ -250,7 +251,8 @@ body {
 }
 .rec-cluster {
   font-size:var(--text-xs);
-  color:var(--color-primary);
+  /* structural cluster tag — muted, not primary */
+  color:var(--color-text-muted);
   font-weight:600;
   text-transform:uppercase;
   letter-spacing:.04em;
@@ -358,27 +360,52 @@ h2 { font-family:var(--font-display); font-size:var(--text-2xl); line-height:1.0
   font-size:var(--text-sm);
 }
 
-/* --- TABS --- */
+/* --- TABS ---
+   Inactive tabs: neutral text on neutral surface.
+   Active tab: inverted (text-on-bg). No primary color on either state —
+   tabs are navigation, not CTAs. Primary color on inactive tabs was
+   reading as "clickable link" in dark mode and causing the "too blue" issue. */
 .tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:var(--space-4) }
 .tab {
   padding:.65rem 1rem; border-radius:999px;
   border:1px solid var(--color-border);
   background:var(--color-surface);
+  color:var(--color-text-muted);
   cursor:pointer; font-size:var(--text-sm);
   font-family:var(--font-body);
-  transition:background .15s, color .15s;
+  transition:background .15s, color .15s, border-color .15s;
 }
-.tab.active { background:var(--color-text); color:var(--color-bg); border-color:var(--color-text) }
-.tab:hover:not(.active) { background:var(--color-surface-2) }
+.tab.active {
+  background:var(--color-text);
+  color:var(--color-bg);
+  border-color:var(--color-text);
+}
+.tab:hover:not(.active) {
+  background:var(--color-surface-2);
+  color:var(--color-text);
+  border-color:color-mix(in oklab, var(--color-border) 60%, var(--color-text));
+}
 
-/* --- MATRIX --- */
+/* --- MATRIX ---
+   table-layout:fixed is required for text-overflow:ellipsis to work
+   on table cells. Without it, the browser ignores overflow clipping
+   and columns wrap instead of truncating. */
 .grid-2 { display:grid; grid-template-columns:1.3fr .7fr; gap:var(--space-5) }
 .matrix-wrap { overflow:auto; border-radius:var(--radius-lg); border:1px solid var(--color-border) }
-table { width:100%; border-collapse:collapse }
+table { width:100%; border-collapse:collapse; table-layout:fixed }
 th, td { padding:.85rem .9rem; border-bottom:1px solid var(--color-border); vertical-align:top; text-align:left; font-size:var(--text-sm) }
 th { position:sticky; top:0; background:var(--color-surface-2); font-weight:600; z-index:1 }
 tbody tr:hover td { background:color-mix(in oklab, var(--color-primary-2) 25%, var(--color-surface)) }
 tbody tr.clickable { cursor:pointer }
+
+/* Cluster column: fixed width, truncate with ellipsis */
+.browse-table td:nth-child(2),
+.browse-table th:nth-child(2) {
+  width:30%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
 /* Empty search state */
 .matrix-empty {
@@ -409,11 +436,7 @@ tbody tr.clickable { cursor:pointer }
 .detail-panel.open { display:block }
 .detail-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-3); margin-top:var(--space-3) }
 
-/* detail-block: flat content blocks, not UI cards.
-   - background: transparent (no white fill boxing each block)
-   - border: hairline alpha — structure without weight
-   - border-radius: 0 — no rounding = no card feel
-   The content carries the meaning. The container stays out of the way. */
+/* detail-block: flat content blocks, not UI cards. */
 .detail-block {
   background:transparent;
   padding:var(--space-3);
@@ -421,9 +444,7 @@ tbody tr.clickable { cursor:pointer }
   border:1px solid oklch(from var(--color-text) l c h / 0.08);
 }
 
-/* detail-block label: muted category marker, not a lead.
-   Teal was a CTA signal being used on category labels — wrong register.
-   One label system across detail-block and resourcing r-label. */
+/* detail-block label: structural marker, stepped back */
 .detail-block strong {
   display:block;
   font-size:var(--text-xs);
@@ -489,12 +510,13 @@ tbody tr.clickable { cursor:pointer }
   font-size:var(--text-sm);
   line-height:1.65;
 }
+/* td-label: structural section marker — muted, not primary */
 .td-label {
   font-size:var(--text-xs);
   text-transform:uppercase;
   letter-spacing:.05em;
-  color:var(--color-primary);
-  font-weight:700;
+  color:var(--color-text-muted);
+  font-weight:600;
   margin-bottom:.35rem;
 }
 
@@ -525,10 +547,11 @@ tbody tr.clickable { cursor:pointer }
   margin-bottom:var(--space-8);
 }
 .ref-group { margin-bottom:var(--space-10) }
+/* ref-group-label: section divider — muted, not primary */
 .ref-group-label {
   font-size:var(--text-xs); font-weight:700;
   letter-spacing:.08em; text-transform:uppercase;
-  color:var(--color-primary);
+  color:var(--color-text-muted);
   margin-bottom:var(--space-5);
   padding-bottom:var(--space-2);
   border-bottom:1px solid var(--color-border);
@@ -549,28 +572,18 @@ tbody tr.clickable { cursor:pointer }
 
 /* ═══════════════════════════════════════════════════
    RESOURCING LAYER
-   Gated layer inside .detail-content-inner, after .detail-grid.
-   Safety floor (.r-floor) mounts in ALL states exactly once.
 ═══════════════════════════════════════════════════ */
 
 .resourcing {
-  /* No border, no background tint.
-     This is the main content, not a callout or sidebar.
-     The surrounding detail-panel provides sufficient context. */
   margin-top:var(--space-6);
   padding:var(--space-2) 0 0;
 }
 
-/* Floor breath: space before safety floor so it reads as a
-   distinct section, not an appendage to the resourcing block */
 .resourcing + .r-floor,
 .r-door + .r-floor {
   margin-top:var(--space-8);
 }
 
-/* r-grounding: sensory transition cue, not a sixth data label.
-   Needs vertical separation from the analytical grid above so it
-   reads as a distinct paragraph before the emotional content begins. */
 .r-grounding {
   font-size:var(--text-xs);
   color:var(--color-text-muted);
@@ -590,14 +603,10 @@ tbody tr.clickable { cursor:pointer }
 .r-rail {
   display:flex;
   flex-direction:column;
-  /* Space does the separation between sections — not borders.
-     32px gap gives each emotional moment room to land distinctly. */
   gap:var(--space-8);
 }
 
 .r-block {
-  /* No border, no background, no box.
-     Content is the structure. Space is the separator. */
   font-size:var(--text-base);
   line-height:1.75;
 }
@@ -607,10 +616,8 @@ tbody tr.clickable { cursor:pointer }
   max-width:68ch;
 }
 
+/* r-label: category marker — muted, not primary */
 .r-label {
-  /* Category marker only — not a lead.
-     Stepped back: muted color, medium weight, small uppercase.
-     Does not compete with or contradict the body it introduces. */
   display:block;
   font-size:var(--text-xs);
   text-transform:uppercase;
@@ -620,15 +627,11 @@ tbody tr.clickable { cursor:pointer }
   margin:0 0 var(--space-2);
 }
 
-/* ONE MOVE: left accent border is the single structural signal.
-   No background tint — tint was invisible in dark mode (6% delta).
-   The border alone works in both light and dark mode. */
 .r-block.r-move {
   padding-left:var(--space-4);
   border-left:2px solid var(--color-primary);
 }
 
-/* Locked door -- anon state */
 .r-door {
   margin-top:var(--space-5);
   padding:var(--space-5);
@@ -652,7 +655,6 @@ tbody tr.clickable { cursor:pointer }
   margin:0;
 }
 
-/* Safety floor -- UNGATED, mounts in every state */
 .r-floor {
   margin-top:var(--space-5);
   padding:var(--space-4);
@@ -685,8 +687,6 @@ tbody tr.clickable { cursor:pointer }
   line-height:1.65;
 }
 
-/* Crisis link -- highest-contrast token in the floor.
-   10.92:1 on --color-surface dark. Do NOT reduce to body accent. */
 .r-crisis a {
   color:#8fd6ff;
   text-decoration:underline;
@@ -697,7 +697,7 @@ tbody tr.clickable { cursor:pointer }
   outline-offset:2px;
 }
 
-/* --- COMING SOON SECTION (hub index.html) --- */
+/* --- COMING SOON SECTION --- */
 .coming-soon-section {
   margin:var(--space-12) 0 var(--space-8);
   padding-top:var(--space-8);
@@ -754,7 +754,7 @@ tbody tr.clickable { cursor:pointer }
 }
 
 /* ═══════════════════════════════════════════════════
-   MOTION SAFETY -- prefers-reduced-motion
+   MOTION SAFETY
 ═══════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .detail-content-inner,
