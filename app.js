@@ -371,9 +371,9 @@ function gReset() {
 }
 
 // — THEME ——————————————————————————————————————————————————
+// Default: always light mode. Toggle still works for manual override.
 (function () {
-  const d = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', d);
+  document.documentElement.setAttribute('data-theme', 'light');
   document.addEventListener('click', e => {
     if (e.target.closest('[data-theme-toggle]')) {
       const r = document.documentElement;
