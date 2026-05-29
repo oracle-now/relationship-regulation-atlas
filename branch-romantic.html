@@ -129,6 +129,16 @@
 <footer style="border-top:1px solid var(--color-border);margin-top:var(--space-12);padding:var(--space-8) var(--space-4);text-align:center">
   <p class="small muted">Relationship Regulation Atlas &mdash; a work in progress.</p>
 </footer>
-<script>(function(){const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;const d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',d);t&&t.addEventListener('click',()=>{const n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);});})();</script>
+<script>
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  r.setAttribute('data-theme', 'light');
+  t && t.addEventListener('click', () => {
+    const next = r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', next);
+  });
+})();
+</script>
 </body>
 </html>

@@ -24,63 +24,12 @@
   </div>
 </div>
 <main class="wrap">
-  <section class="branch-hero" style="--branch-color:#5a9f40">
-    <div class="branch-eyebrow">Non-human &amp; transitional</div>
+  <section class="branch-hero" style="--branch-color:#1e7d74">
+    <div class="branch-eyebrow">Non-human relationships</div>
     <h2 class="branch-title">With animals</h2>
-    <p class="branch-sub">For many heavily armored people, animals are the first safe attachment. No judgment, no agenda, no script. The regulation that feels impossible with humans becomes available here, and what happens in that space is worth paying close attention to.</p>
+    <p class="branch-sub">Often the safest attachment available to heavily armored people. A window into the regulation we can&rsquo;t yet do with humans.</p>
   </section>
-
-  <section class="branch-frame">
-    <div class="branch-intro-grid">
-      <div class="branch-intro-text">
-        <h3>What makes this context different</h3>
-        <p>Animals activate the ventral vagal system, Porges&rsquo;s social engagement circuitry, without triggering the threat-appraisal mechanisms that human relationships engage. The animal doesn&rsquo;t evaluate. It responds to state, not narrative.</p>
-        <p>This makes the animal relationship a window into what regulation actually feels like in the body. Many people discover in their relationship with an animal what they have been unable to access with other humans, and this becomes a bridge, not a destination.</p>
-      </div>
-      <div class="branch-lens panel pad">
-        <div class="branch-lens-label">Key lens for this context</div>
-        <p class="small">Porges on the ventral vagal system and neuroception of safety. Van der Kolk on animal-assisted therapy and body-level regulation. The animal as a transitional object in the Winnicottian sense: a bridge between the defended interior and the relational world.</p>
-      </div>
-    </div>
-
-    <div class="branch-section-title">What this relationship reveals</div>
-    <div class="branch-behavior-grid">
-
-      <div class="bcard">
-        <div class="bcard-name">The animal as the only safe attachment</div>
-        <div class="bcard-move"><span class="tag">Move toward</span></div>
-        <div class="bcard-body">
-          <div class="bcard-row"><strong>What it shows:</strong> The capacity for attachment is intact. The body knows how to connect. The defenses are specific to human relationships, not to intimacy itself.</div>
-          <div class="bcard-row"><strong>The risk:</strong> The animal becomes a substitute rather than a bridge, and the avoidance of human intimacy gets organized around their presence.</div>
-          <div class="bcard-row bcard-resist"><strong>The question worth sitting with:</strong> What is available here, in this body, in this moment of contact, that I haven&rsquo;t allowed myself with a person?</div>
-          <div class="bcard-row bcard-through"><strong>As a bridge:</strong> Use what you know about how to be with an animal as a map for what you want to practice with a human. Slow down. Follow their cues. Be in the room.</div>
-        </div>
-      </div>
-
-      <div class="bcard">
-        <div class="bcard-name">Over-caretaking the animal</div>
-        <div class="bcard-move"><span class="tag">Control</span> <span class="tag">Move toward</span></div>
-        <div class="bcard-body">
-          <div class="bcard-row"><strong>What it shows:</strong> The same caretaking strategy that appears in human relationships: managing their needs as a way of feeling needed and safe.</div>
-          <div class="bcard-row"><strong>The cost:</strong> The animal&rsquo;s actual needs get managed rather than met. The relationship becomes about the caretaker&rsquo;s regulation, not the animal&rsquo;s wellbeing.</div>
-          <div class="bcard-row bcard-resist"><strong>The question:</strong> What am I meeting in myself through their care?</div>
-          <div class="bcard-row bcard-through"><strong>A way through:</strong> Practice being with the animal without doing anything. Just present.</div>
-        </div>
-      </div>
-
-      <div class="bcard">
-        <div class="bcard-name">Grief at the animal&rsquo;s loss as proxy grief</div>
-        <div class="bcard-move"><span class="tag">Discharge</span></div>
-        <div class="bcard-body">
-          <div class="bcard-row"><strong>What it shows:</strong> When the grief of an animal&rsquo;s death exceeds what the relationship itself might account for, it is often carrying older, unlived grief.</div>
-          <div class="bcard-row"><strong>What it opens:</strong> The body finally gets to grieve, for the animal, and for everything else that was never mourned. This is not pathological. It is an opening.</div>
-          <div class="bcard-row bcard-through"><strong>A way through:</strong> Let the grief be as large as it is. Don&rsquo;t apologize for it or minimize it. Follow it where it goes.</div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
+  <section class="branch-frame" id="branch-content"></section>
   <div class="branch-back-row">
     <a href="index.html" class="btn">&larr; Back to all contexts</a>
     <a href="atlas.html" class="btn primary">Open the full atlas &rarr;</a>
@@ -89,6 +38,18 @@
 <footer style="border-top:1px solid var(--color-border);margin-top:var(--space-12);padding:var(--space-8) var(--space-4);text-align:center">
   <p class="small muted">Relationship Regulation Atlas &mdash; a work in progress.</p>
 </footer>
-<script>(function(){const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;const d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',d);t&&t.addEventListener('click',()=>{const n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);});})();</script>
+<script src="data.js"></script>
+<script src="resourcing.js"></script>
+<script>
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  r.setAttribute('data-theme', 'light');
+  t && t.addEventListener('click', () => {
+    const next = r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', next);
+  });
+})();
+</script>
 </body>
 </html>
