@@ -83,24 +83,37 @@
       <p class="r-framing">This is a defense you built for a reason. Not a flaw in you.</p>
       <p class="r-grounding">Feel your feet, or the chair, before you read on.</p>
 
-      <div class="r-rail">
+      <button class="oe-toggle" aria-expanded="false" aria-controls="oe-depth" id="oe-toggle-btn">
+        Go deeper
+        <span class="oe-toggle-icon" aria-hidden="true">&#8595;</span>
+      </button>
 
-        <div class="r-block">
-          <span class="r-label">What if it comes true</span>
-          <p>You say it once, you stop explaining, and they still don&rsquo;t get it. The gap is real and it stays.</p>
+      <div class="oe-depth" id="oe-depth">
+        <div class="oe-depth-inner">
+          <div class="oe-depth-grid">
+
+            <div class="oe-block">
+              <span class="oe-eyebrow">What if it comes true</span>
+              <p>You say it once, you stop explaining, and they still don&rsquo;t get it. The gap is real and it stays. They don&rsquo;t change their mind, and you didn&rsquo;t earn the understanding you were working for.</p>
+            </div>
+
+            <div class="oe-block">
+              <span class="oe-eyebrow">What holds: inside you</span>
+              <p>You&rsquo;ve already lived through being misunderstood and kept going. You&rsquo;re not actually managed by it. Knowing the truth, even an unwanted one, is something you&rsquo;ve carried before and can carry again.</p>
+            </div>
+
+            <div class="oe-block">
+              <span class="oe-eyebrow">What holds: with another person</span>
+              <p>When you&rsquo;re ready: one person who lets the gap be real without rushing to fix it shows you that being incompletely understood isn&rsquo;t the same as being left.</p>
+            </div>
+
+            <div class="oe-block oe-block-move">
+              <span class="oe-eyebrow">One move</span>
+              <p>Say the thing once. Then stop, and let the silence sit for one breath without adding to it.</p>
+            </div>
+
+          </div>
         </div>
-
-        <div class="r-block r-internal">
-          <span class="r-label">What holds: inside you</span>
-          <p>You&rsquo;ve already lived through being misunderstood and kept going. You&rsquo;re not actually managed by it.</p>
-          <p>The part of you that kept going is still here.</p>
-        </div>
-
-        <div class="r-block r-move">
-          <span class="r-label">One move</span>
-          <p>Say the thing once. Then stop, and let the silence sit for one breath without adding to it.</p>
-        </div>
-
       </div>
 
       <div class="r-floor">
@@ -134,6 +147,7 @@
     root.setAttribute('data-theme', theme);
   });
 
+  // bcard expand
   const btn   = document.getElementById('expand-btn');
   const panel = document.getElementById('card-expand');
   const label = btn.querySelector('.expand-label');
@@ -142,6 +156,16 @@
     btn.setAttribute('aria-expanded', String(!expanded));
     panel.setAttribute('aria-hidden', String(expanded));
     label.textContent = expanded ? 'Read more' : 'Show less';
+  });
+
+  // OE depth expander
+  const oeBtn   = document.getElementById('oe-toggle-btn');
+  const oeDepth = document.getElementById('oe-depth');
+  const oeIcon  = oeBtn.querySelector('.oe-toggle-icon');
+  oeBtn.addEventListener('click', () => {
+    const open = oeDepth.classList.toggle('open');
+    oeBtn.setAttribute('aria-expanded', String(open));
+    oeIcon.style.transform = open ? 'rotate(180deg)' : '';
   });
 })();
 </script>
