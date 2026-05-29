@@ -1,13 +1,11 @@
 /* ============================================================
    RELATIONSHIP REGULATION ATLAS — app.js
-   Atlas UI logic: tabs, matrix, row expand, cycle map,
+   Atlas UI: tabs, matrix, row expand, cycle map,
    theme toggle, view toggle, territory map.
-   Anchor behavior is passed in via ?anchor= URL param from
-   the orb entry flow on index.html.
+   Anchor passed in via ?anchor= URL param from orb flow.
    ============================================================ */
 
-// ── READ ANCHOR FROM URL ─────────────────────────────────────────
-// The orb flow on index.html navigates to atlas.html?anchor=BehaviorName
+// ── ANCHOR FROM URL ────────────────────────────────────────────────
 const _urlAnchor = new URLSearchParams(window.location.search).get('anchor') || null;
 const orbState = { anchor: _urlAnchor };
 
@@ -34,26 +32,34 @@ function renderTable() {
   const body = document.getElementById('matrixBody');
   const q = document.getElementById('searchInput').value.toLowerCase();
   body.innerHTML = '';
-  behaviors
-    .filter(b =>
-      (activeCluster === 'All' || b.cluster === activeCluster) &&
-      (!q || b.name.toLowerCase().includes(q) ||
-             b.logic.toLowerCase().includes(q) ||
-             b.cluster.toLowerCase().includes(q))
-    )
-    .forEach(b => {
-      const tr = document.createElement('tr');
-      tr.className = 'clickable';
-      tr.innerHTML = `
-        <td><strong>${b.name}</strong><div class="small">${b.cluster}</div></td>
-        <td><div class="moves">${b.moves.map(m => `<span class="tag">${m}</span>`).join('')}</div></td>
-        <td class="small">${b.logic}</td>
-        <td class="small">${b.cost}</td>
-        <td class="small">${b.resistance}</td>
-      `;
-      tr.onclick = () => toggleDetail(b, tr);
-      body.appendChild(tr);
-    });
+  const filtered = behaviors.filter(b =>
+    (activeCluster === 'All' || b.cluster === activeCluster) &&
+    (!q || b.name.toLowerCase().includes(q) ||
+           b.logic.toLowerCase().includes(q) ||
+           b.cluster.toLowerCase().includes(q))
+  );
+
+  if (filtered.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="5"><div class="matrix-empty">Nothing matches &mdash; try a different word, or clear the search.</div></td>`;
+    body.appendChild(tr);
+    return;
+  }
+
+  filtered.forEach(b => {
+    const tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.innerHTML = `
+      <td><strong>${b.name}</strong><div class="small">${b.cluster}</div></td>
+      <td><div class="moves">${b.moves.map(m => `<span class="tag">${m}</span>`).join('')}</div></td>
+      <td class="small">${b.logic}</td>
+      <td class="small">${b.cost}</td>
+      <td class="small">${b.resistance}</td>
+    `;
+    tr.onclick = () => toggleDetail(b, tr);
+    body.appendChild(tr);
+  });
+
   if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
@@ -109,7 +115,7 @@ function updateHeroPanel(b) {
   `;
 }
 
-// ── CYCLE MAP SELECTS ─────────────────────────────────────────────
+// ── CYCLE MAP ──────────────────────────────────────────────────────
 function fillSelects() {
   const aSel = document.getElementById('aSelect');
   const bSel = document.getElementById('bSelect');
@@ -117,7 +123,8 @@ function fillSelects() {
     [aSel, bSel].forEach(sel => {
       const o = document.createElement('option');
       o.value = i;
-      o.textContent = `${b.cluster} — ${b.name}`;
+      // Shorter label: just the behavior name
+      o.textContent = b.name;
       sel.appendChild(o);
     });
   });
@@ -147,7 +154,7 @@ function updateCycle() {
     When Partner A uses <em>${a.name}</em>—${a.logic.toLowerCase()}—Partner B often responds with <em>${b.name}</em>.
     <br><br>
     <strong>The loop:</strong> ${a.pairNote}<br>
-    <strong>B's side adds:</strong> ${b.pairNote}
+    <strong>B’s side adds:</strong> ${b.pairNote}
     <br><br>
     <strong>Where both people are stuck:</strong>
     Partner A fears that ${a.fear.toLowerCase()}
@@ -170,15 +177,22 @@ function updateCycle() {
   });
 })();
 
-// ── VIEW TOGGLE ───────────────────────────────────────────────────
+// ── VIEW TOGGLE ──────────────────────────────────────────────────
 (function () {
   const btn = document.getElementById('viewToggle');
   if (!btn) return;
   const root = document.documentElement;
-  let view = 'matrix';
+  // Restore view from URL hash if present
+  if (window.location.hash === '#territory') {
+    root.setAttribute('data-view', 'spatial');
+    btn.innerHTML = '&#9635; Matrix';
+    renderTerritory();
+  }
+  let view = root.getAttribute('data-view') === 'spatial' ? 'spatial' : 'matrix';
   btn.addEventListener('click', () => {
     view = view === 'matrix' ? 'spatial' : 'matrix';
     root.setAttribute('data-view', view);
+    history.replaceState(null, '', view === 'spatial' ? '#territory' : window.location.pathname + window.location.search);
     if (view === 'spatial') {
       btn.innerHTML = '&#9635; Matrix';
       btn.setAttribute('aria-label', 'Switch to matrix view');
@@ -198,15 +212,11 @@ function getBehaviorPosition(b) {
   const hasActivate = moves.some(m => /discharge|control|pursue|rage|escalate|anxiety|alarm|protest|flood/i.test(m));
   const hasCollapse = moves.some(m => /numb|transform|freeze|dissociate|collapse|gone|fade|still|quiet|soothe/i.test(m));
   const clusterMap = {
-    'Pursuit & Protest':    { qx: 0, qy: 0 },
-    'Flooding & Discharge': { qx: 0, qy: 0 },
-    'Control & Fixing':     { qx: 0, qy: 0 },
-    'Withdrawal & Armor':   { qx: 1, qy: 0 },
-    'Stonewalling':         { qx: 1, qy: 0 },
-    'Numbing & Collapse':   { qx: 1, qy: 1 },
-    'Self-abandonment':     { qx: 1, qy: 1 },
-    'Transformation':       { qx: 0, qy: 1 },
-    'Secure Base':          { qx: 0, qy: 1 },
+    'Communication / Conflict':   { qx: 0, qy: 0 },
+    'Control / Over-functioning': { qx: 0, qy: 0 },
+    'Sexual / Romantic':          { qx: 1, qy: 0 },
+    'Mind / Fantasy / Spirit':    { qx: 1, qy: 1 },
+    'Collapse / Shutdown':        { qx: 1, qy: 1 },
   };
   const fallback = clusterMap[b.cluster] || { qx: 0, qy: 0 };
   const qx = hasToward ? 0 : hasAway ? 1 : fallback.qx;
