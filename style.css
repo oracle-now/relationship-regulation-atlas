@@ -260,7 +260,6 @@ body {
   color:var(--color-text-muted);
   line-height:1.5;
   margin-top:.15rem;
-  /* Truncate to one line so cards stay compact */
   display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
@@ -523,31 +522,41 @@ tbody tr.clickable { cursor:pointer }
 
 /* ═══════════════════════════════════════════════════
    RESOURCING LAYER
-   Gated layer that lives inside .detail-content-inner,
-   after .detail-grid. Mounts in both authed and anon states.
+   Gated layer inside .detail-content-inner, after .detail-grid.
    Safety floor (.r-floor) mounts in ALL states exactly once.
 ═══════════════════════════════════════════════════ */
 
 .resourcing {
-  margin-top:var(--space-5);
-  padding:var(--space-5);
+  margin-top:var(--space-6);
+  padding:var(--space-6);
   border:1px solid var(--color-border);
   border-radius:var(--radius-md);
   background:color-mix(in oklab, var(--color-primary-2) 12%, var(--color-surface));
+}
+
+/* EDIT 1: floor breath -- extra top margin before the floor so it
+   reads as a distinct section, not an appendage to the resourcing block */
+.resourcing + .r-floor,
+.r-door + .r-floor {
+  margin-top:var(--space-8);
 }
 
 .r-grounding {
   font-size:var(--text-xs);
   color:var(--color-text-muted);
   letter-spacing:.03em;
-  margin:0 0 var(--space-3);
+  margin:0 0 var(--space-4);
 }
 
+/* EDIT 2: framing weight -- r-framing uses display font at slightly
+   larger size so it reads as a section lead, not a caption */
 .r-framing {
-  font-size:var(--text-sm);
-  color:var(--color-text-muted);
-  font-style:italic;
-  margin:0 0 var(--space-4);
+  font-family:var(--font-display);
+  font-size:var(--text-base);
+  color:var(--color-text);
+  font-style:normal;
+  line-height:1.5;
+  margin:0 0 var(--space-5);
 }
 
 .r-rail {
@@ -577,7 +586,14 @@ tbody tr.clickable { cursor:pointer }
   margin-bottom:.25rem;
 }
 
-/* Locked door — anon state */
+/* EDIT 3: r-move distinction -- move blocks get a left accent
+   so they read as active/actionable vs. the observational r-blocks */
+.r-block.r-move {
+  border-left:3px solid var(--color-primary);
+  background:color-mix(in oklab, var(--color-primary-2) 18%, var(--color-surface));
+}
+
+/* Locked door -- anon state */
 .r-door {
   margin-top:var(--space-5);
   padding:var(--space-5);
@@ -601,7 +617,7 @@ tbody tr.clickable { cursor:pointer }
   margin:0;
 }
 
-/* Safety floor — UNGATED, mounts in every state */
+/* Safety floor -- UNGATED, mounts in every state */
 .r-floor {
   margin-top:var(--space-5);
   padding:var(--space-4);
@@ -634,10 +650,8 @@ tbody tr.clickable { cursor:pointer }
   line-height:1.65;
 }
 
-/* Crisis link — highest-contrast token in the floor.
-   10.92:1 on --color-surface (#1a1a1f dark surface).
-   Underline ensures it is not color-dependent (WCAG 1.4.1).
-   Forward-guard: do NOT reduce this to the body accent (#3aa6a0 = 5.90:1). */
+/* Crisis link -- highest-contrast token in the floor.
+   10.92:1 on --color-surface dark. Do NOT reduce to body accent. */
 .r-crisis a {
   color:#8fd6ff;
   text-decoration:underline;
@@ -648,14 +662,64 @@ tbody tr.clickable { cursor:pointer }
   outline-offset:2px;
 }
 
+/* --- COMING SOON SECTION (hub index.html) --- */
+.coming-soon-section {
+  margin:var(--space-12) 0 var(--space-8);
+  padding-top:var(--space-8);
+  border-top:1px solid var(--color-border);
+}
+
+.coming-soon-label {
+  font-size:var(--text-xs);
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--color-text-muted);
+  margin:0 0 var(--space-3);
+}
+
+.coming-soon-note {
+  font-size:var(--text-sm);
+  color:var(--color-text-muted);
+  line-height:1.7;
+  margin:0 0 var(--space-5);
+  max-width:52ch;
+}
+
+.coming-soon-list {
+  list-style:none;
+  margin:0 0 var(--space-6);
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--space-2) var(--space-5);
+}
+
+.coming-soon-list li {
+  font-size:var(--text-sm);
+  color:var(--color-text-muted);
+}
+
+.coming-soon-follow {
+  font-size:var(--text-sm);
+  color:var(--color-text-muted);
+  line-height:1.7;
+}
+
+.coming-soon-follow a {
+  color:var(--color-primary);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+.coming-soon-follow a:hover,
+.coming-soon-follow a:focus-visible {
+  color:var(--color-text);
+  outline:none;
+}
+
 /* ═══════════════════════════════════════════════════
-   MOTION SAFETY — prefers-reduced-motion
-   Kills all transitions site-wide when the OS reduce-motion
-   setting is active. The three selectors below are intentional:
-   - .detail-content-inner: the row expand transition (existing)
-   - .resourcing: forward-guard (no current animation, prevents future sneak)
-   - .r-door:     forward-guard (same)
-   Do NOT remove the forward-guards without a deliberate audit.
+   MOTION SAFETY -- prefers-reduced-motion
 ═══════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .detail-content-inner,
@@ -677,7 +741,6 @@ tbody tr.clickable { cursor:pointer }
   .orb-cards { grid-template-columns:1fr }
 }
 
-/* Mobile: tighten hub hero so orb stays in viewport */
 @media (max-width:700px) {
   .hub-hero {
     padding:var(--space-6) 0 var(--space-4) !important;
@@ -690,12 +753,15 @@ tbody tr.clickable { cursor:pointer }
     font-size:var(--text-sm);
     margin-bottom:var(--space-4) !important;
   }
-  /* Hide move chips on mobile — decorative, take up row height */
   .moves-bar {
     display:none !important;
   }
   .core-node {
     width:160px !important;
     height:160px !important;
+  }
+  .coming-soon-list {
+    flex-direction:column;
+    gap:var(--space-2);
   }
 }
