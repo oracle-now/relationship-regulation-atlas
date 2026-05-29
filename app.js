@@ -1,7 +1,7 @@
 /* ============================================================
    RELATIONSHIP REGULATION ATLAS — app.js
    All UI logic: tabs, matrix table, row expand,
-   cycle map selects, and theme toggle.
+   cycle map selects, theme toggle, and view toggle.
    Edit this file to change how the atlas behaves.
    ============================================================ */
 
@@ -131,6 +131,175 @@ function updateCycle() {
     r.setAttribute('data-theme', next);
   });
 })();
+
+// --- VIEW TOGGLE ---
+(function () {
+  const btn = document.getElementById('viewToggle');
+  const root = document.documentElement;
+  let view = 'matrix'; // default
+
+  btn.addEventListener('click', () => {
+    view = view === 'matrix' ? 'spatial' : 'matrix';
+    root.setAttribute('data-view', view);
+    if (view === 'spatial') {
+      btn.innerHTML = '&#9635; Matrix';
+      btn.setAttribute('aria-label', 'Switch to matrix view');
+      renderTerritory();
+    } else {
+      btn.innerHTML = '&#9671; Territory';
+      btn.setAttribute('aria-label', 'Switch to territory view');
+    }
+  });
+})();
+
+// --- TERRITORY MAP ---
+
+// District assignment based on behavior moves.
+// Quadrant: x = toward(left) vs away(right), y = activated(top) vs collapsed(bottom)
+function getBehaviorPosition(b) {
+  const moves = b.moves || [];
+  const hasToward   = moves.some(m => /toward|pursue|reach|connect|pull|plea|protest|demand|cling|fawn|fix|perform|over-explain|bid/i.test(m));
+  const hasAway     = moves.some(m => /away|withdraw|avoid|shut|stone|silent|escape|detach|disappear|deflect|minimize|dismiss|armor/i.test(m));
+  const hasActivate = moves.some(m => /discharge|control|pursue|rage|escalate|anxiety|alarm|protest|flood/i.test(m));
+  const hasCollapse = moves.some(m => /numb|transform|freeze|dissociate|collapse|gone|fade|still|quiet|soothe/i.test(m));
+
+  // Default quadrant based on cluster name if moves are ambiguous
+  const clusterMap = {
+    'Pursuit & Protest':    { qx: 0, qy: 0 },
+    'Flooding & Discharge': { qx: 0, qy: 0 },
+    'Control & Fixing':     { qx: 0, qy: 0 },
+    'Withdrawal & Armor':   { qx: 1, qy: 0 },
+    'Stonewalling':         { qx: 1, qy: 0 },
+    'Numbing & Collapse':   { qx: 1, qy: 1 },
+    'Self-abandonment':     { qx: 1, qy: 1 },
+    'Transformation':       { qx: 0, qy: 1 },
+    'Secure Base':          { qx: 0, qy: 1 },
+  };
+  const fallback = clusterMap[b.cluster] || { qx: 0, qy: 0 };
+
+  const qx = hasToward ? 0 : hasAway ? 1 : fallback.qx;
+  const qy = hasActivate ? 0 : hasCollapse ? 1 : fallback.qy;
+
+  // Map quadrant to SVG zone center with scatter
+  const centers = [
+    { cx: 175, cy: 170 }, // toward + activated  (top-left)
+    { cx: 515, cy: 170 }, // away  + activated  (top-right)
+    { cx: 175, cy: 390 }, // toward + collapsed  (bottom-left)
+    { cx: 515, cy: 390 }, // away  + collapsed  (bottom-right)
+  ];
+  const idx = qy * 2 + qx;
+  const center = centers[idx];
+
+  // Deterministic scatter based on behavior name length
+  const seed = b.name.length * 37 + b.cluster.length * 13;
+  const angle = (seed % 360) * Math.PI / 180;
+  const radius = 20 + (seed % 80);
+  return {
+    x: Math.round(center.cx + Math.cos(angle) * radius),
+    y: Math.round(center.cy + Math.sin(angle) * radius),
+    district: idx
+  };
+}
+
+const districtColors = ['#c45c2a', '#3a6b8a', '#3a7a48', '#6a5c8a'];
+
+let selectedNode = null;
+
+function renderTerritory() {
+  const g = document.getElementById('behaviorNodes');
+  if (g.childElementCount > 0) return; // already rendered
+
+  behaviors.forEach((b, i) => {
+    const pos = getBehaviorPosition(b);
+    const color = districtColors[pos.district];
+
+    // Hit area (invisible, larger for touch)
+    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hit.setAttribute('cx', pos.x);
+    hit.setAttribute('cy', pos.y);
+    hit.setAttribute('r', '16');
+    hit.setAttribute('fill', 'transparent');
+    hit.style.cursor = 'pointer';
+
+    // Visible dot
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', pos.x);
+    dot.setAttribute('cy', pos.y);
+    dot.setAttribute('r', '5');
+    dot.setAttribute('fill', color);
+    dot.setAttribute('opacity', '0.75');
+    dot.style.transition = 'r 0.15s ease, opacity 0.15s ease';
+    dot.classList.add('behavior-dot');
+    dot.dataset.idx = i;
+
+    // Label (faint, shows on hover via CSS)
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', pos.x + 8);
+    label.setAttribute('y', pos.y + 4);
+    label.setAttribute('font-size', '8');
+    label.setAttribute('font-family', 'Satoshi, sans-serif');
+    label.setAttribute('fill', color);
+    label.setAttribute('opacity', '0');
+    label.classList.add('behavior-label');
+    label.dataset.idx = i;
+    label.textContent = b.name;
+
+    // Group
+    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grp.classList.add('behavior-node');
+    grp.dataset.idx = i;
+    grp.appendChild(hit);
+    grp.appendChild(dot);
+    grp.appendChild(label);
+
+    grp.addEventListener('mouseenter', () => {
+      dot.setAttribute('r', '7');
+      dot.setAttribute('opacity', '1');
+      label.setAttribute('opacity', '0.7');
+    });
+    grp.addEventListener('mouseleave', () => {
+      if (selectedNode !== i) {
+        dot.setAttribute('r', '5');
+        dot.setAttribute('opacity', '0.75');
+        label.setAttribute('opacity', '0');
+      }
+    });
+    grp.addEventListener('click', () => {
+      // Deselect previous
+      if (selectedNode !== null) {
+        const prev = g.querySelector(`[data-idx="${selectedNode}"] .behavior-dot`);
+        const prevLabel = g.querySelector(`[data-idx="${selectedNode}"] .behavior-label`);
+        if (prev) { prev.setAttribute('r', '5'); prev.setAttribute('opacity', '0.75'); }
+        if (prevLabel) prevLabel.setAttribute('opacity', '0');
+      }
+      selectedNode = i;
+      dot.setAttribute('r', '8');
+      dot.setAttribute('opacity', '1');
+      label.setAttribute('opacity', '0.9');
+      showTerritoryDetail(b, color);
+    });
+
+    g.appendChild(grp);
+  });
+}
+
+function showTerritoryDetail(b, color) {
+  document.getElementById('tdEmpty').style.display = 'none';
+  document.getElementById('tdContent').style.display = 'block';
+
+  document.getElementById('tdCluster').textContent = b.cluster;
+  document.getElementById('tdName').textContent = b.name;
+  document.getElementById('tdName').style.color = color;
+  document.getElementById('tdLogic').textContent = b.logic;
+  document.getElementById('tdCost').textContent = b.cost;
+  document.getElementById('tdProtects').textContent = b.protects || '—';
+  document.getElementById('tdFear').textContent = b.fear || '—';
+  document.getElementById('tdHealthier').textContent = b.healthier || '—';
+  document.getElementById('tdPairNote').textContent = b.pairNote || '—';
+
+  const movesEl = document.getElementById('tdMoves');
+  movesEl.innerHTML = (b.moves || []).map(m => `<span class="tag">${m}</span>`).join('');
+}
 
 // --- INIT ---
 renderTabs();

@@ -92,6 +92,19 @@ body {
 .brand p  { margin:0; color:var(--color-text-muted); font-size:var(--text-sm) }
 .toolbar  { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center }
 
+/* --- VIEW TOGGLE — active state --- */
+[data-view="spatial"] #viewToggle {
+  background:var(--color-text);
+  color:var(--color-bg);
+  border-color:var(--color-text);
+}
+
+/* --- VIEW SHOW / HIDE --- */
+#territoryView { display:none }
+#matrixView    { display:block }
+[data-view="spatial"] #territoryView { display:block }
+[data-view="spatial"] #matrixView    { display:none }
+
 /* --- CONTROLS --- */
 .btn, .select-ctrl, input {
   border:1px solid var(--color-border);
@@ -194,6 +207,60 @@ tbody tr.clickable { cursor:pointer }
 .cycle-arrow{ display:flex; align-items:center; justify-content:center; color:var(--color-primary); font-size:1.5rem }
 .cycle-out  { margin-top:var(--space-4); padding:var(--space-4); border-radius:var(--radius-md); background:var(--color-surface-2); border:1px solid var(--color-border); font-size:var(--text-sm); line-height:1.7 }
 
+/* --- TERRITORY MAP --- */
+.territory-layout {
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:var(--space-5);
+  align-items:start;
+}
+.territory-map-wrap {
+  overflow:hidden;
+  padding:var(--space-3);
+}
+.territory-map-wrap svg {
+  width:100%;
+  height:auto;
+  display:block;
+  color:var(--color-text);
+}
+.territory-detail {
+  position:sticky;
+  top:calc(60px + var(--space-4));
+  min-height:320px;
+}
+.td-empty {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:200px;
+  padding:var(--space-6);
+}
+.td-hint {
+  color:var(--color-text-muted);
+  font-size:var(--text-sm);
+  text-align:center;
+  line-height:1.7;
+  max-width:28ch;
+}
+.td-block {
+  margin-top:var(--space-3);
+  padding:var(--space-3);
+  background:var(--color-surface-2);
+  border-radius:var(--radius-sm);
+  border:1px solid var(--color-border);
+  font-size:var(--text-sm);
+  line-height:1.65;
+}
+.td-label {
+  font-size:var(--text-xs);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--color-primary);
+  font-weight:700;
+  margin-bottom:.35rem;
+}
+
 /* --- THREE WAYS CARDS --- */
 .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-4) }
 .card { padding:var(--space-5); border:1px solid var(--color-border); border-radius:var(--radius-md); background:var(--color-surface) }
@@ -249,4 +316,6 @@ tbody tr.clickable { cursor:pointer }
   .cycle-grid { grid-template-columns:1fr }
   .cycle-arrow { transform:rotate(90deg); padding:.4rem 0 }
   .lineage-callout { flex-direction:column; align-items:flex-start; gap:var(--space-5) }
+  .territory-layout { grid-template-columns:1fr }
+  .territory-detail { position:static }
 }
