@@ -401,11 +401,38 @@ tbody tr.clickable { cursor:pointer }
   border-radius:var(--radius-sm); margin-top:var(--space-2);
   font-size:var(--text-xs); color:var(--color-text-muted);
 }
-.detail-panel { display:none; padding:var(--space-4); border-top:1px solid var(--color-border); background:color-mix(in oklab, var(--color-primary-2) 15%, var(--color-surface)) }
+
+/* detail-panel: no background tint — same surface as the row.
+   The tint was creating a visual register break between the
+   analytical grid and the resourcing section below it. */
+.detail-panel { display:none; padding:var(--space-4); border-top:1px solid var(--color-border); background:transparent }
 .detail-panel.open { display:block }
 .detail-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-3); margin-top:var(--space-3) }
-.detail-block { background:var(--color-surface); padding:var(--space-3); border-radius:var(--radius-sm); border:1px solid var(--color-border) }
-.detail-block strong { display:block; font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.05em; color:var(--color-primary); margin-bottom:.4rem }
+
+/* detail-block: flat content blocks, not UI cards.
+   - background: transparent (no white fill boxing each block)
+   - border: hairline alpha — structure without weight
+   - border-radius: 0 — no rounding = no card feel
+   The content carries the meaning. The container stays out of the way. */
+.detail-block {
+  background:transparent;
+  padding:var(--space-3);
+  border-radius:0;
+  border:1px solid oklch(from var(--color-text) l c h / 0.08);
+}
+
+/* detail-block label: muted category marker, not a lead.
+   Teal was a CTA signal being used on category labels — wrong register.
+   One label system across detail-block and resourcing r-label. */
+.detail-block strong {
+  display:block;
+  font-size:var(--text-xs);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--color-text-muted);
+  font-weight:500;
+  margin-bottom:.4rem;
+}
 
 /* --- SEARCH --- */
 .search-wrap { display:flex; gap:.6rem; align-items:center; margin-bottom:var(--space-4) }
@@ -541,11 +568,14 @@ tbody tr.clickable { cursor:pointer }
   margin-top:var(--space-8);
 }
 
+/* r-grounding: sensory transition cue, not a sixth data label.
+   Needs vertical separation from the analytical grid above so it
+   reads as a distinct paragraph before the emotional content begins. */
 .r-grounding {
   font-size:var(--text-xs);
   color:var(--color-text-muted);
   letter-spacing:.03em;
-  margin:0 0 var(--space-4);
+  margin:var(--space-10) 0 var(--space-4);
 }
 
 .r-framing {
