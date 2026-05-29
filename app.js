@@ -1,6 +1,7 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js  v2.2
+   RELATIONSHIP REGULATION ATLAS — app.js  v2.2.1
    Browse, Cycles, Where am I? + Resourcing layer (phase 1)
+   Hotfix: typeof guards on all cross-file function calls.
    ============================================================ */
 
 // — ANCHOR ————————————————————————————————————————————————
@@ -160,15 +161,21 @@ function toggleDetail(b, tr) {
   dr.id = 'detailRow';
   dr.className = 'detail-row';
 
-  // Determine entitlement — phase 1: open/static (all entitled).
+  // Entitlement — phase 1: open/static (all entitled).
   // Phase 2: replace with real auth check (e.g. session cookie / JWT).
   const entitled = true; // TODO(phase-2): replace with auth check
 
-  // Resourcing block: authed → full entry | anon → locked door
-  // Safety floor mounts exactly once, regardless of state. (test_5)
-  const resourcingBlock = (typeof resourcing !== 'undefined' && resourcing[b.name])
-    ? (entitled ? renderResourcing(b) : renderLockedDoor())
+  // Cross-file call audit (see ROOM.md):
+  // renderResourcing, renderLockedDoor, renderSafetyFloor all live in
+  // resourcing.js. atlas.html may not have loaded it yet (or ever).
+  // typeof guards ensure toggleDetail never throws — cards always expand.
+  const hasResourcingEntry = typeof resourcing !== 'undefined' && resourcing[b.name];
+  const resourcingBlock = hasResourcingEntry
+    ? (entitled
+        ? (typeof renderResourcing  === 'function' ? renderResourcing(b)  : '')
+        : (typeof renderLockedDoor  === 'function' ? renderLockedDoor()   : ''))
     : '';
+  const floorBlock = typeof renderSafetyFloor === 'function' ? renderSafetyFloor() : '';
 
   dr.innerHTML = `
     <td colspan="2">
@@ -184,7 +191,7 @@ function toggleDetail(b, tr) {
               <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
             </div>
             ${resourcingBlock}
-            ${renderSafetyFloor()}
+            ${floorBlock}
             <div class="detail-footer">
               <span class="small muted">Typical pairing: ${b.pairNote}</span>
               <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
