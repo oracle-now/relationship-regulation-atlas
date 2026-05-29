@@ -17,10 +17,90 @@
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
+    /* ═══════════════════════════════════════
+       GLOWING HERO
+       Two pseudo-elements:
+       ::before  — primary teal orb, centered, slow breathe
+       ::after   — secondary amber orb, offset, slower drift
+       A gradient mask at the bottom fades the glow
+       into the page background (no hard line).
+       All animations killed by prefers-reduced-motion.
+    ═══════════════════════════════════════ */
     .hub-hero {
-      padding: var(--space-12) 0 var(--space-8);
+      position: relative;
+      padding: var(--space-12) 0 calc(var(--space-8) + 80px);
       text-align: center;
+      overflow: hidden;
+      /* Gradient fade at bottom — teal glow dissolves into page bg */
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 65%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black 65%,
+        transparent 100%
+      );
     }
+
+    /* Primary orb — teal, centered, breathing */
+    .hub-hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -55%);
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at center,
+        color-mix(in oklab, var(--color-primary) 22%, transparent) 0%,
+        color-mix(in oklab, var(--color-primary) 8%, transparent) 45%,
+        transparent 72%
+      );
+      animation: orbBreathe 10s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Secondary orb — accent amber, offset lower-right, slower */
+    .hub-hero::after {
+      content: '';
+      position: absolute;
+      top: 60%;
+      left: 62%;
+      width: 340px;
+      height: 340px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at center,
+        color-mix(in oklab, var(--color-accent) 14%, transparent) 0%,
+        color-mix(in oklab, var(--color-accent) 5%, transparent) 50%,
+        transparent 72%
+      );
+      animation: orbDrift 14s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes orbBreathe {
+      0%, 100% { transform: translate(-50%, -55%) scale(1);   opacity: 1; }
+      50%       { transform: translate(-50%, -55%) scale(1.1); opacity: 0.75; }
+    }
+
+    @keyframes orbDrift {
+      0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.8; }
+      50%       { transform: translate(-52%, -54%) scale(1.08); opacity: 0.55; }
+    }
+
+    /* All hero content sits above the orbs */
+    .hub-hero > * { position: relative; z-index: 1; }
+
     .hub-hero h2 {
       font-size: clamp(1.75rem, 4.5vw, 2.75rem);
       margin: var(--space-4) auto var(--space-4);
@@ -46,6 +126,36 @@
       padding: .8rem 1.4rem;
       font-size: var(--text-sm);
     }
+
+    /* Reduced motion — keep static glow, kill animation */
+    @media (prefers-reduced-motion: reduce) {
+      .hub-hero::before,
+      .hub-hero::after {
+        animation: none;
+      }
+    }
+
+    /* Dark theme — orbs are slightly brighter to read through dark bg */
+    [data-theme="dark"] .hub-hero::before {
+      background: radial-gradient(
+        ellipse at center,
+        color-mix(in oklab, var(--color-primary) 30%, transparent) 0%,
+        color-mix(in oklab, var(--color-primary) 12%, transparent) 45%,
+        transparent 72%
+      );
+    }
+    [data-theme="dark"] .hub-hero::after {
+      background: radial-gradient(
+        ellipse at center,
+        color-mix(in oklab, var(--color-accent) 20%, transparent) 0%,
+        color-mix(in oklab, var(--color-accent) 7%, transparent) 50%,
+        transparent 72%
+      );
+    }
+
+    /* ═══════════════════════════════════════
+       CONTEXTS SECTION
+    ═══════════════════════════════════════ */
     .branch-section-label {
       font-size: var(--text-xs);
       font-weight: 700;
@@ -96,11 +206,6 @@
       text-transform: uppercase;
       color: var(--color-primary);
     }
-    .hub-divider {
-      border: none;
-      border-top: 1px solid var(--color-border);
-      margin: var(--space-10) 0 0;
-    }
   </style>
 </head>
 <body>
@@ -133,8 +238,6 @@
       <a class="btn" href="atlas.html#guide">Where am I in this?</a>
     </div>
   </section>
-
-  <hr class="hub-divider" />
 
   <div class="branch-section-label">Contexts</div>
   <div class="branch-grid">
