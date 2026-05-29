@@ -31,7 +31,6 @@
 
 <main class="wrap">
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-grid">
       <div>
@@ -58,11 +57,7 @@
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- MATRIX VIEW                                 -->
-  <!-- ═══════════════════════════════════════════ -->
   <div id="matrixView">
-
     <section class="section" id="matrix">
       <h2 class="section-title">The Matrix</h2>
       <div class="search-wrap">
@@ -74,11 +69,7 @@
           <table>
             <thead>
               <tr>
-                <th>Behavior</th>
-                <th>Moves</th>
-                <th>Short-term logic</th>
-                <th>Long-term cost</th>
-                <th>Resistance</th>
+                <th>Behavior</th><th>Moves</th><th>Short-term logic</th><th>Long-term cost</th><th>Resistance</th>
               </tr>
             </thead>
             <tbody id="matrixBody"></tbody>
@@ -126,121 +117,61 @@
         <div class="cycle-out" id="cycleOut"></div>
       </div>
     </section>
+  </div>
 
-  </div><!-- /#matrixView -->
-
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TERRITORY VIEW                              -->
-  <!-- ═══════════════════════════════════════════ -->
   <div id="territoryView">
-
     <section class="section">
       <h2 class="section-title">The Territory</h2>
       <p class="sub" style="margin-bottom:var(--space-5)">Each dot is a behavior pattern. Click one to see the full picture. Districts are defined by nervous-system state &mdash; where your energy is, and which direction it moves.</p>
-
       <div class="territory-layout">
-
-        <!-- SVG MAP -->
         <div class="territory-map-wrap panel">
           <svg id="territoryMap" viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Territory map of behavior patterns">
             <defs>
-              <!-- District washes -->
-              <radialGradient id="gReach" cx="30%" cy="30%" r="55%">
-                <stop offset="0%" stop-color="#c45c2a" stop-opacity="0.22"/>
-                <stop offset="100%" stop-color="#c45c2a" stop-opacity="0"/>
-              </radialGradient>
-              <radialGradient id="gArmor" cx="70%" cy="30%" r="55%">
-                <stop offset="0%" stop-color="#3a6b8a" stop-opacity="0.20"/>
-                <stop offset="100%" stop-color="#3a6b8a" stop-opacity="0"/>
-              </radialGradient>
-              <radialGradient id="gIntegrate" cx="30%" cy="70%" r="55%">
-                <stop offset="0%" stop-color="#3a7a48" stop-opacity="0.20"/>
-                <stop offset="100%" stop-color="#3a7a48" stop-opacity="0"/>
-              </radialGradient>
-              <radialGradient id="gVanish" cx="70%" cy="70%" r="55%">
-                <stop offset="0%" stop-color="#6a5c8a" stop-opacity="0.18"/>
-                <stop offset="100%" stop-color="#6a5c8a" stop-opacity="0"/>
-              </radialGradient>
+              <radialGradient id="gReach" cx="30%" cy="30%" r="55%"><stop offset="0%" stop-color="#c45c2a" stop-opacity="0.22"/><stop offset="100%" stop-color="#c45c2a" stop-opacity="0"/></radialGradient>
+              <radialGradient id="gArmor" cx="70%" cy="30%" r="55%"><stop offset="0%" stop-color="#3a6b8a" stop-opacity="0.20"/><stop offset="100%" stop-color="#3a6b8a" stop-opacity="0"/></radialGradient>
+              <radialGradient id="gIntegrate" cx="30%" cy="70%" r="55%"><stop offset="0%" stop-color="#3a7a48" stop-opacity="0.20"/><stop offset="100%" stop-color="#3a7a48" stop-opacity="0"/></radialGradient>
+              <radialGradient id="gVanish" cx="70%" cy="70%" r="55%"><stop offset="0%" stop-color="#6a5c8a" stop-opacity="0.18"/><stop offset="100%" stop-color="#6a5c8a" stop-opacity="0"/></radialGradient>
               <filter id="blur4"><feGaussianBlur stdDeviation="18"/></filter>
             </defs>
-
-            <!-- District color washes -->
             <ellipse cx="195" cy="175" rx="165" ry="145" fill="url(#gReach)" filter="url(#blur4)"/>
             <ellipse cx="505" cy="175" rx="165" ry="145" fill="url(#gArmor)" filter="url(#blur4)"/>
             <ellipse cx="195" cy="390" rx="165" ry="145" fill="url(#gIntegrate)" filter="url(#blur4)"/>
             <ellipse cx="505" cy="390" rx="165" ry="145" fill="url(#gVanish)" filter="url(#blur4)"/>
-
-            <!-- Compass axes (dotted) -->
             <line x1="350" y1="24" x2="350" y2="536" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
             <line x1="24" y1="280" x2="676" y2="280" stroke="currentColor" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4 6"/>
-
-            <!-- Axis labels -->
             <text x="350" y="16" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">ACTIVATED</text>
             <text x="350" y="556" text-anchor="middle" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">COLLAPSED</text>
             <text x="12" y="284" text-anchor="start" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">TOWARD</text>
             <text x="688" y="284" text-anchor="end" font-size="10" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.45" font-weight="600" letter-spacing=".08em">AWAY</text>
-
-            <!-- District labels -->
             <text x="80" y="52" font-size="11" font-family="Zodiak,serif" fill="#c45c2a" opacity="0.7" font-weight="700">The Reachers</text>
             <text x="80" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; toward</text>
-
             <text x="420" y="52" font-size="11" font-family="Zodiak,serif" fill="#3a6b8a" opacity="0.7" font-weight="700">The Armored</text>
             <text x="420" y="67" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">activated &middot; away</text>
-
             <text x="68" y="468" font-size="11" font-family="Zodiak,serif" fill="#3a7a48" opacity="0.7" font-weight="700">The Integrators</text>
             <text x="68" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; toward</text>
-
             <text x="430" y="468" font-size="11" font-family="Zodiak,serif" fill="#6a5c8a" opacity="0.7" font-weight="700">The Vanished</text>
             <text x="430" y="483" font-size="9" font-family="Satoshi,sans-serif" fill="currentColor" opacity="0.4">collapsed &middot; away</text>
-
-            <!-- Behavior dots rendered by JS -->
             <g id="behaviorNodes"></g>
-
-            <!-- Center resting dot -->
             <circle cx="350" cy="280" r="5" fill="currentColor" opacity="0.12"/>
           </svg>
         </div>
-
-        <!-- DETAIL PANEL -->
         <div class="territory-detail panel pad" id="territoryDetail">
-          <div id="tdEmpty" class="td-empty">
-            <div class="td-hint">&#8678; Click any dot to see the full picture for that pattern.</div>
-          </div>
+          <div id="tdEmpty" class="td-empty"><div class="td-hint">&#8678; Click any dot to see the full picture for that pattern.</div></div>
           <div id="tdContent" style="display:none">
             <div class="small muted" id="tdCluster"></div>
             <h3 style="font-family:var(--font-display);margin:.4rem 0 .8rem" id="tdName"></h3>
-            <div class="td-block">
-              <div class="td-label">Short-term logic</div>
-              <div id="tdLogic"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Long-term cost</div>
-              <div id="tdCost"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">What it protects me from seeing</div>
-              <div id="tdProtects"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">What I fear if I stop</div>
-              <div id="tdFear"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Healthier version of this move</div>
-              <div id="tdHealthier"></div>
-            </div>
-            <div class="td-block">
-              <div class="td-label">Typical pairing cycle</div>
-              <div id="tdPairNote"></div>
-            </div>
+            <div class="td-block"><div class="td-label">Short-term logic</div><div id="tdLogic"></div></div>
+            <div class="td-block"><div class="td-label">Long-term cost</div><div id="tdCost"></div></div>
+            <div class="td-block"><div class="td-label">What it protects me from seeing</div><div id="tdProtects"></div></div>
+            <div class="td-block"><div class="td-label">What I fear if I stop</div><div id="tdFear"></div></div>
+            <div class="td-block"><div class="td-label">Healthier version of this move</div><div id="tdHealthier"></div></div>
+            <div class="td-block"><div class="td-label">Typical pairing cycle</div><div id="tdPairNote"></div></div>
             <div class="moves" id="tdMoves" style="margin-top:var(--space-3)"></div>
           </div>
         </div>
-
-      </div><!-- /.territory-layout -->
+      </div>
     </section>
-
-  </div><!-- /#territoryView -->
+  </div>
 
 </main>
 

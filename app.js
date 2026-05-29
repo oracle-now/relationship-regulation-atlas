@@ -1,20 +1,26 @@
 /* ============================================================
    RELATIONSHIP REGULATION ATLAS — app.js
-   All UI logic: tabs, matrix table, row expand,
-   cycle map selects, theme toggle, and view toggle.
-   Edit this file to change how the atlas behaves.
+   Atlas UI logic: tabs, matrix, row expand, cycle map,
+   theme toggle, view toggle, territory map.
+   Anchor behavior is passed in via ?anchor= URL param from
+   the orb entry flow on index.html.
    ============================================================ */
 
-// --- STATE ---
-const clusters = ['All', ...new Set(behaviors.map(b => b.cluster))];
+// ── READ ANCHOR FROM URL ─────────────────────────────────────────
+// The orb flow on index.html navigates to atlas.html?anchor=BehaviorName
+const _urlAnchor = new URLSearchParams(window.location.search).get('anchor') || null;
+const orbState = { anchor: _urlAnchor };
+
+// ── ATLAS STATE ───────────────────────────────────────────────────
+const clusters = () => ['All', ...new Set(behaviors.map(b => b.cluster))];
 let activeCluster = 'All';
 let openRow = null;
 
-// --- TABS ---
+// ── TABS ──────────────────────────────────────────────────────────
 function renderTabs() {
   const tabs = document.getElementById('clusterTabs');
   tabs.innerHTML = '';
-  clusters.forEach(c => {
+  clusters().forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'tab' + (c === activeCluster ? ' active' : '');
     btn.textContent = c;
@@ -23,7 +29,7 @@ function renderTabs() {
   });
 }
 
-// --- MATRIX TABLE ---
+// ── MATRIX TABLE ──────────────────────────────────────────────────
 function renderTable() {
   const body = document.getElementById('matrixBody');
   const q = document.getElementById('searchInput').value.toLowerCase();
@@ -48,9 +54,10 @@ function renderTable() {
       tr.onclick = () => toggleDetail(b, tr);
       body.appendChild(tr);
     });
+  if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
-// --- ROW EXPAND ---
+// ── ROW EXPAND ────────────────────────────────────────────────────
 function toggleDetail(b, tr) {
   const existing = document.getElementById('detailRow');
   if (existing) existing.remove();
@@ -76,7 +83,33 @@ function toggleDetail(b, tr) {
   tr.after(dr);
 }
 
-// --- CYCLE MAP SELECTS ---
+// ── ANCHOR HIGHLIGHT ──────────────────────────────────────────────
+function highlightAnchor(name) {
+  requestAnimationFrame(() => {
+    const rows = document.querySelectorAll('#matrixBody tr');
+    rows.forEach(row => {
+      const strong = row.querySelector('strong');
+      if (strong && strong.textContent.trim() === name) {
+        row.classList.add('anchor-highlight');
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const b = behaviors.find(bh => bh.name === name);
+        if (b) updateHeroPanel(b);
+      }
+    });
+  });
+}
+
+function updateHeroPanel(b) {
+  document.getElementById('heroPanelTitle').textContent = b.name;
+  document.getElementById('heroPanelBody').innerHTML = `
+    <div class="stage"><strong>Where you are:</strong> ${b.cluster}</div>
+    <div class="stage"><strong>Short-term logic:</strong> ${b.logic}</div>
+    <div class="stage"><strong>The cost:</strong> ${b.cost}</div>
+    <div class="stage" style="margin-top:var(--space-3)"><strong>A way through:</strong> ${b.healthier || '—'}</div>
+  `;
+}
+
+// ── CYCLE MAP SELECTS ─────────────────────────────────────────────
 function fillSelects() {
   const aSel = document.getElementById('aSelect');
   const bSel = document.getElementById('bSelect');
@@ -88,7 +121,12 @@ function fillSelects() {
       sel.appendChild(o);
     });
   });
-  aSel.value = 1;
+  if (orbState.anchor) {
+    const anchorIdx = behaviors.findIndex(b => b.name === orbState.anchor);
+    if (anchorIdx > -1) aSel.value = anchorIdx;
+  } else {
+    aSel.value = 1;
+  }
   bSel.value = 2;
   updateCycle();
   aSel.addEventListener('change', updateCycle);
@@ -120,24 +158,24 @@ function updateCycle() {
   `;
 }
 
-// --- THEME TOGGLE ---
+// ── THEME TOGGLE ──────────────────────────────────────────────────
 (function () {
-  const t = document.querySelector('[data-theme-toggle]');
-  const r = document.documentElement;
   const d = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-  r.setAttribute('data-theme', d);
-  t && t.addEventListener('click', () => {
-    const next = r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    r.setAttribute('data-theme', next);
+  document.documentElement.setAttribute('data-theme', d);
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-theme-toggle]')) {
+      const r = document.documentElement;
+      r.setAttribute('data-theme', r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
   });
 })();
 
-// --- VIEW TOGGLE ---
+// ── VIEW TOGGLE ───────────────────────────────────────────────────
 (function () {
   const btn = document.getElementById('viewToggle');
+  if (!btn) return;
   const root = document.documentElement;
-  let view = 'matrix'; // default
-
+  let view = 'matrix';
   btn.addEventListener('click', () => {
     view = view === 'matrix' ? 'spatial' : 'matrix';
     root.setAttribute('data-view', view);
@@ -152,18 +190,13 @@ function updateCycle() {
   });
 })();
 
-// --- TERRITORY MAP ---
-
-// District assignment based on behavior moves.
-// Quadrant: x = toward(left) vs away(right), y = activated(top) vs collapsed(bottom)
+// ── TERRITORY MAP ─────────────────────────────────────────────────
 function getBehaviorPosition(b) {
   const moves = b.moves || [];
   const hasToward   = moves.some(m => /toward|pursue|reach|connect|pull|plea|protest|demand|cling|fawn|fix|perform|over-explain|bid/i.test(m));
   const hasAway     = moves.some(m => /away|withdraw|avoid|shut|stone|silent|escape|detach|disappear|deflect|minimize|dismiss|armor/i.test(m));
   const hasActivate = moves.some(m => /discharge|control|pursue|rage|escalate|anxiety|alarm|protest|flood/i.test(m));
   const hasCollapse = moves.some(m => /numb|transform|freeze|dissociate|collapse|gone|fade|still|quiet|soothe/i.test(m));
-
-  // Default quadrant based on cluster name if moves are ambiguous
   const clusterMap = {
     'Pursuit & Protest':    { qx: 0, qy: 0 },
     'Flooding & Discharge': { qx: 0, qy: 0 },
@@ -176,21 +209,14 @@ function getBehaviorPosition(b) {
     'Secure Base':          { qx: 0, qy: 1 },
   };
   const fallback = clusterMap[b.cluster] || { qx: 0, qy: 0 };
-
   const qx = hasToward ? 0 : hasAway ? 1 : fallback.qx;
   const qy = hasActivate ? 0 : hasCollapse ? 1 : fallback.qy;
-
-  // Map quadrant to SVG zone center with scatter
   const centers = [
-    { cx: 175, cy: 170 }, // toward + activated  (top-left)
-    { cx: 515, cy: 170 }, // away  + activated  (top-right)
-    { cx: 175, cy: 390 }, // toward + collapsed  (bottom-left)
-    { cx: 515, cy: 390 }, // away  + collapsed  (bottom-right)
+    { cx: 175, cy: 170 }, { cx: 515, cy: 170 },
+    { cx: 175, cy: 390 }, { cx: 515, cy: 390 },
   ];
   const idx = qy * 2 + qx;
   const center = centers[idx];
-
-  // Deterministic scatter based on behavior name length
   const seed = b.name.length * 37 + b.cluster.length * 13;
   const angle = (seed % 360) * Math.PI / 180;
   const radius = 20 + (seed % 80);
@@ -202,70 +228,47 @@ function getBehaviorPosition(b) {
 }
 
 const districtColors = ['#c45c2a', '#3a6b8a', '#3a7a48', '#6a5c8a'];
-
 let selectedNode = null;
 
 function renderTerritory() {
   const g = document.getElementById('behaviorNodes');
-  if (g.childElementCount > 0) return; // already rendered
-
+  if (g.childElementCount > 0) return;
   behaviors.forEach((b, i) => {
     const pos = getBehaviorPosition(b);
     const color = districtColors[pos.district];
-
-    // Hit area (invisible, larger for touch)
+    const isAnchor = b.name === orbState.anchor;
     const hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    hit.setAttribute('cx', pos.x);
-    hit.setAttribute('cy', pos.y);
-    hit.setAttribute('r', '16');
-    hit.setAttribute('fill', 'transparent');
+    hit.setAttribute('cx', pos.x); hit.setAttribute('cy', pos.y);
+    hit.setAttribute('r', '16'); hit.setAttribute('fill', 'transparent');
     hit.style.cursor = 'pointer';
-
-    // Visible dot
     const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    dot.setAttribute('cx', pos.x);
-    dot.setAttribute('cy', pos.y);
-    dot.setAttribute('r', '5');
+    dot.setAttribute('cx', pos.x); dot.setAttribute('cy', pos.y);
+    dot.setAttribute('r', isAnchor ? '8' : '5');
     dot.setAttribute('fill', color);
-    dot.setAttribute('opacity', '0.75');
+    dot.setAttribute('opacity', isAnchor ? '1' : '0.75');
     dot.style.transition = 'r 0.15s ease, opacity 0.15s ease';
-    dot.classList.add('behavior-dot');
-    dot.dataset.idx = i;
-
-    // Label (faint, shows on hover via CSS)
+    dot.classList.add('behavior-dot'); dot.dataset.idx = i;
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', pos.x + 8);
-    label.setAttribute('y', pos.y + 4);
-    label.setAttribute('font-size', '8');
-    label.setAttribute('font-family', 'Satoshi, sans-serif');
+    label.setAttribute('x', pos.x + 8); label.setAttribute('y', pos.y + 4);
+    label.setAttribute('font-size', '8'); label.setAttribute('font-family', 'Satoshi, sans-serif');
     label.setAttribute('fill', color);
-    label.setAttribute('opacity', '0');
-    label.classList.add('behavior-label');
-    label.dataset.idx = i;
+    label.setAttribute('opacity', isAnchor ? '0.9' : '0');
+    label.classList.add('behavior-label'); label.dataset.idx = i;
     label.textContent = b.name;
-
-    // Group
     const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.classList.add('behavior-node');
-    grp.dataset.idx = i;
-    grp.appendChild(hit);
-    grp.appendChild(dot);
-    grp.appendChild(label);
-
+    grp.classList.add('behavior-node'); grp.dataset.idx = i;
+    grp.appendChild(hit); grp.appendChild(dot); grp.appendChild(label);
     grp.addEventListener('mouseenter', () => {
-      dot.setAttribute('r', '7');
-      dot.setAttribute('opacity', '1');
-      label.setAttribute('opacity', '0.7');
+      dot.setAttribute('r', '7'); dot.setAttribute('opacity', '1'); label.setAttribute('opacity', '0.7');
     });
     grp.addEventListener('mouseleave', () => {
       if (selectedNode !== i) {
-        dot.setAttribute('r', '5');
-        dot.setAttribute('opacity', '0.75');
-        label.setAttribute('opacity', '0');
+        dot.setAttribute('r', isAnchor ? '8' : '5');
+        dot.setAttribute('opacity', isAnchor ? '1' : '0.75');
+        label.setAttribute('opacity', isAnchor ? '0.9' : '0');
       }
     });
     grp.addEventListener('click', () => {
-      // Deselect previous
       if (selectedNode !== null) {
         const prev = g.querySelector(`[data-idx="${selectedNode}"] .behavior-dot`);
         const prevLabel = g.querySelector(`[data-idx="${selectedNode}"] .behavior-label`);
@@ -273,20 +276,17 @@ function renderTerritory() {
         if (prevLabel) prevLabel.setAttribute('opacity', '0');
       }
       selectedNode = i;
-      dot.setAttribute('r', '8');
-      dot.setAttribute('opacity', '1');
-      label.setAttribute('opacity', '0.9');
+      dot.setAttribute('r', '8'); dot.setAttribute('opacity', '1'); label.setAttribute('opacity', '0.9');
       showTerritoryDetail(b, color);
     });
-
     g.appendChild(grp);
+    if (isAnchor) { selectedNode = i; showTerritoryDetail(b, color); }
   });
 }
 
 function showTerritoryDetail(b, color) {
   document.getElementById('tdEmpty').style.display = 'none';
   document.getElementById('tdContent').style.display = 'block';
-
   document.getElementById('tdCluster').textContent = b.cluster;
   document.getElementById('tdName').textContent = b.name;
   document.getElementById('tdName').style.color = color;
@@ -296,12 +296,11 @@ function showTerritoryDetail(b, color) {
   document.getElementById('tdFear').textContent = b.fear || '—';
   document.getElementById('tdHealthier').textContent = b.healthier || '—';
   document.getElementById('tdPairNote').textContent = b.pairNote || '—';
-
-  const movesEl = document.getElementById('tdMoves');
-  movesEl.innerHTML = (b.moves || []).map(m => `<span class="tag">${m}</span>`).join('');
+  document.getElementById('tdMoves').innerHTML = (b.moves || []).map(m => `<span class="tag">${m}</span>`).join('');
 }
 
-// --- INIT ---
+// ── INIT ──────────────────────────────────────────────────────────
 renderTabs();
 renderTable();
 fillSelects();
+if (orbState.anchor) highlightAnchor(orbState.anchor);
