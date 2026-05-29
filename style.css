@@ -527,15 +527,15 @@ tbody tr.clickable { cursor:pointer }
 ═══════════════════════════════════════════════════ */
 
 .resourcing {
+  /* No border, no background tint.
+     This is the main content, not a callout or sidebar.
+     The surrounding detail-panel provides sufficient context. */
   margin-top:var(--space-6);
-  padding:var(--space-6);
-  border:1px solid var(--color-border);
-  border-radius:var(--radius-md);
-  background:color-mix(in oklab, var(--color-primary-2) 12%, var(--color-surface));
+  padding:var(--space-2) 0 0;
 }
 
-/* EDIT 1: floor breath -- extra top margin before the floor so it
-   reads as a distinct section, not an appendage to the resourcing block */
+/* Floor breath: space before safety floor so it reads as a
+   distinct section, not an appendage to the resourcing block */
 .resourcing + .r-floor,
 .r-door + .r-floor {
   margin-top:var(--space-8);
@@ -548,49 +548,54 @@ tbody tr.clickable { cursor:pointer }
   margin:0 0 var(--space-4);
 }
 
-/* EDIT 2: framing weight -- r-framing uses display font at slightly
-   larger size so it reads as a section lead, not a caption */
 .r-framing {
   font-family:var(--font-display);
   font-size:var(--text-base);
   color:var(--color-text);
   font-style:normal;
-  line-height:1.5;
-  margin:0 0 var(--space-5);
+  line-height:1.6;
+  margin:0 0 var(--space-6);
 }
 
 .r-rail {
   display:flex;
   flex-direction:column;
-  gap:var(--space-3);
+  /* Space does the separation between sections — not borders.
+     32px gap gives each emotional moment room to land distinctly. */
+  gap:var(--space-8);
 }
 
 .r-block {
-  padding:var(--space-3) var(--space-4);
-  background:var(--color-surface);
-  border-radius:var(--radius-sm);
-  border:1px solid var(--color-border);
-  font-size:var(--text-sm);
-  line-height:1.7;
+  /* No border, no background, no box.
+     Content is the structure. Space is the separator. */
+  font-size:var(--text-base);
+  line-height:1.75;
 }
 
-.r-block p { margin:var(--space-2) 0 0; }
+.r-block p {
+  margin:var(--space-2) 0 0;
+  max-width:68ch;
+}
 
 .r-label {
+  /* Category marker only — not a lead.
+     Stepped back: muted color, medium weight, small uppercase.
+     Does not compete with or contradict the body it introduces. */
   display:block;
   font-size:var(--text-xs);
   text-transform:uppercase;
-  letter-spacing:.05em;
-  color:var(--color-primary);
-  font-weight:700;
-  margin-bottom:.25rem;
+  letter-spacing:.06em;
+  color:var(--color-text-muted);
+  font-weight:500;
+  margin:0 0 var(--space-2);
 }
 
-/* EDIT 3: r-move distinction -- move blocks get a left accent
-   so they read as active/actionable vs. the observational r-blocks */
+/* ONE MOVE: left accent border is the single structural signal.
+   No background tint — tint was invisible in dark mode (6% delta).
+   The border alone works in both light and dark mode. */
 .r-block.r-move {
-  border-left:3px solid var(--color-primary);
-  background:color-mix(in oklab, var(--color-primary-2) 18%, var(--color-surface));
+  padding-left:var(--space-4);
+  border-left:2px solid var(--color-primary);
 }
 
 /* Locked door -- anon state */
