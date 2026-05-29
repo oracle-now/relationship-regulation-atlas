@@ -8,20 +8,20 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Relationship Regulation Atlas" />
-  <meta property="og:description" content="When you have a map, you can see where you are &mdash; and where else you could go. A visual complement to the work you&rsquo;re already doing." />
+  <meta property="og:description" content="When you have a map, you can see where you are and where else you could go. A visual complement to the work you&rsquo;re already doing." />
   <meta property="og:url" content="https://oracle-now.github.io/relationship-regulation-atlas/" />
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Relationship Regulation Atlas" />
-  <meta name="twitter:description" content="When you have a map, you can see where you are &mdash; and where else you could go." />
+  <meta name="twitter:description" content="When you have a map, you can see where you are and where else you could go." />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ═══════════════════════════════════════
-       HUB HERO — branch-page register
+    /* ===========================================
+       HUB HERO -- branch-page register
        No orb. No pill eyebrow. No filled CTAs.
-       Just: label → headline → sub → text links with arrows.
-    ═══════════════════════════════════════ */
+       Just: label -> headline -> sub -> text links with arrows.
+    =========================================== */
     .hub-hero {
       padding: var(--space-10) 0 var(--space-8);
       text-align: left;
@@ -54,7 +54,7 @@
       line-height: 1.75;
     }
 
-    /* Text-link CTAs — branch page style, no pill/fill/border-radius */
+    /* Text-link CTAs -- branch page style, no pill/fill/border-radius */
     .hub-cta-row {
       display: flex;
       gap: var(--space-8);
@@ -97,11 +97,11 @@
       border-color: var(--color-border);
     }
 
-    /* ═══════════════════════════════════════
+    /* ===========================================
        PATTERN PREVIEW TEASER
        One real entry, collapsed, with expand.
        Shows the five-part structure before the contexts grid.
-    ═══════════════════════════════════════ */
+    =========================================== */
     .pattern-preview {
       margin: var(--space-10) 0 var(--space-10);
       padding-top: var(--space-8);
@@ -213,9 +213,9 @@
       border-color: var(--color-primary);
     }
 
-    /* ═══════════════════════════════════════
+    /* ===========================================
        CONTEXTS SECTION
-    ═══════════════════════════════════════ */
+    =========================================== */
     .branch-section-label {
       font-size: var(--text-xs);
       font-weight: 700;
@@ -234,7 +234,7 @@
       margin-bottom: var(--space-8);
     }
 
-    /* Flat cards — no top accent stripe, no hover lift, branch-page register */
+    /* Flat cards -- no top accent stripe, no hover lift, branch-page register */
     .branch-card {
       display: flex;
       flex-direction: column;
@@ -298,7 +298,7 @@
   <section class="hub-hero">
     <span class="hub-hero-label">For you &middot; For your therapist &middot; For the work between sessions</span>
     <h2>When you have a map, it&rsquo;s easier to see where you are.</h2>
-    <p class="sub">I scrolled Instagram. I read the books. It was hard to synthesize. This is the one giant laid-out visual map I didn&rsquo;t have while going through it &mdash; and it keeps growing.</p>
+    <p class="sub">I scrolled Instagram. I read the books. It was hard to synthesize. This is the one giant laid-out visual map I didn&rsquo;t have while going through it, and it keeps growing.</p>
     <div class="hub-cta-row">
       <a class="hub-link" href="atlas.html">Open the map &rarr;</a>
       <a class="hub-link secondary" href="atlas.html#guide">I don&rsquo;t know where to start &rarr;</a>
@@ -359,7 +359,7 @@
     </a>
     <a class="branch-card" href="branch-animals.html">
       <h4>With animals</h4>
-      <p>Often the safest attachment available to heavily armored people &mdash; a window into the regulation we can&rsquo;t yet do with humans.</p>
+      <p>Often the safest attachment available to heavily armored people. A window into the regulation we can&rsquo;t yet do with humans.</p>
       <div class="branch-status">Open &rarr;</div>
     </a>
   </div>
@@ -392,12 +392,13 @@
 
 <script>
 (function(){
+  // Default to light. User can toggle. No system preference override.
   const t = document.querySelector('[data-theme-toggle]');
   const r = document.documentElement;
-  const d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-  r.setAttribute('data-theme', d);
+  r.setAttribute('data-theme', 'light');
   t && t.addEventListener('click', () => {
-    r.setAttribute('data-theme', r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    const next = r.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', next);
   });
 })();
 
