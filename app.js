@@ -1,14 +1,13 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js  v2
-   Browse (two-col + smooth expand), Cycles, Where am I?
-   Topbar search always active. Anchor via ?anchor= param.
+   RELATIONSHIP REGULATION ATLAS — app.js  v2.1
+   Browse, Cycles, Where am I? — polish pass
    ============================================================ */
 
-// ── ANCHOR ────────────────────────────────────────────────────
+// — ANCHOR ————————————————————————————————————————————————
 const _urlAnchor = new URLSearchParams(window.location.search).get('anchor') || null;
 const orbState   = { anchor: _urlAnchor };
 
-// ── CLUSTER META ──────────────────────────────────────────────
+// — CLUSTER META ————————————————————————————————————————————
 const clusterColors = {
   'Sexual / Romantic':          'ctag-sexual',
   'Communication / Conflict':   'ctag-comms',
@@ -17,26 +16,25 @@ const clusterColors = {
   'Collapse / Shutdown':        'ctag-collapse',
 };
 
-// Warm colloquial secondary names for recognition cards
 const warmNames = {
-  'Outsourcing erotic energy':   'keeping desire at a distance',
-  'Distancing after intimacy':   'pulling back after closeness',
-  'Over-explaining':             'trying to make them understand',
-  'Stonewalling':                'going completely silent',
-  'Explosive anger / protest':   'letting it all out at once',
-  'Sarcasm and deflection':      'keeping it light to stay safe',
-  'Overworking':                 'staying too busy to feel it',
-  'Caretaking / rescuing':       'fixing so you don\'t have to feel',
+  'Outsourcing erotic energy':       'keeping desire at a distance',
+  'Distancing after intimacy':       'pulling back after closeness',
+  'Over-explaining':                 'trying to make them understand',
+  'Stonewalling':                    'going completely silent',
+  'Explosive anger / protest':       'letting it all out at once',
+  'Sarcasm and deflection':          'keeping it light to stay safe',
+  'Overworking':                     'staying too busy to feel it',
+  'Caretaking / rescuing':           "fixing so you don't have to feel",
   'Hyper-monitoring / surveillance': 'watching for the thing you dread',
-  'Intellectualizing':           'analyzing instead of feeling',
-  'Spiritual bypassing':         'rising above instead of going in',
-  'Retreating into fantasy':     'living in a better version of this',
-  'Emotional shutdown / collapse': 'powering all the way down',
-  'Functional freeze':           'holding still until it\'s safer',
-  'Emotional numbing':           'turning the volume down on everything',
+  'Intellectualizing':               'analyzing instead of feeling',
+  'Spiritual bypassing':             'rising above instead of going in',
+  'Retreating into fantasy':         'living in a better version of this',
+  'Emotional shutdown / collapse':   'powering all the way down',
+  'Functional freeze':               "holding still until it's safer",
+  'Emotional numbing':               'turning the volume down on everything',
 };
 
-// ── TAB SYSTEM ────────────────────────────────────────────────
+// — TAB SYSTEM ——————————————————————————————————————————————
 document.querySelectorAll('.atlas-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.atlas-tab').forEach(t => {
@@ -48,47 +46,58 @@ document.querySelectorAll('.atlas-tab').forEach(tab => {
     tab.setAttribute('aria-selected', 'true');
     const panel = document.getElementById('panel-' + tab.dataset.tab);
     if (panel) panel.classList.add('active');
-    // If switching to cycles, init selects if not yet done
     if (tab.dataset.tab === 'cycles' && !document.getElementById('aSelect').children.length) fillSelects();
   });
 });
 
-// Open guide tab if URL hash is #guide
 if (window.location.hash === '#guide') {
   document.querySelector('[data-tab="guide"]').click();
 }
 
-// ── TOPBAR SEARCH ─────────────────────────────────────────────
+// — SEARCH —————————————————————————————————————————————————
 function handleTopbarSearch() {
-  // Switch to browse tab
+  const m = document.getElementById('mobileSearch');
+  if (m) m.value = document.getElementById('topbarSearch').value;
   document.querySelector('[data-tab="browse"]').click();
   renderTable();
 }
 
-// ── CLUSTER TABS ──────────────────────────────────────────────
+function handleMobileSearch() {
+  const t = document.getElementById('topbarSearch');
+  if (t) t.value = document.getElementById('mobileSearch').value;
+  document.querySelector('[data-tab="browse"]').click();
+  renderTable();
+}
+
+function getSearchQuery() {
+  const d = document.getElementById('topbarSearch');
+  const m = document.getElementById('mobileSearch');
+  return ((d && d.value) || (m && m.value) || '').toLowerCase();
+}
+
+// — CLUSTER TABS ———————————————————————————————————————————
 let activeCluster = 'All';
 
 function renderTabs() {
-  const tabsEl = document.getElementById('clusterTabs');
-  tabsEl.innerHTML = '';
-  const all = ['All', ...new Set(behaviors.map(b => b.cluster))];
-  all.forEach(c => {
+  const el = document.getElementById('clusterTabs');
+  el.innerHTML = '';
+  ['All', ...new Set(behaviors.map(b => b.cluster))].forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'tab' + (c === activeCluster ? ' active' : '');
     btn.textContent = c;
     btn.onclick = () => { activeCluster = c; renderTabs(); renderTable(); };
-    tabsEl.appendChild(btn);
+    el.appendChild(btn);
   });
 }
 
-// ── BROWSE TABLE ──────────────────────────────────────────────
+// — BROWSE TABLE ———————————————————————————————————————————
 let openDetailRow = null;
 
 function renderTable() {
   const body = document.getElementById('matrixBody');
-  const q = (document.getElementById('topbarSearch').value || '').toLowerCase();
+  const q    = getSearchQuery();
   body.innerHTML = '';
-  openDetailRow = null;
+  openDetailRow  = null;
 
   const filtered = behaviors.filter(b =>
     (activeCluster === 'All' || b.cluster === activeCluster) &&
@@ -98,14 +107,13 @@ function renderTable() {
            (b.moves || []).join(' ').toLowerCase().includes(q))
   );
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="2"><div class="matrix-empty">Nothing matches &mdash; try a different word or clear the search.</div></td>`;
+    tr.innerHTML = `<td colspan="2"><div class="matrix-empty">Nothing matches — try a different word or clear the search.</div></td>`;
     body.appendChild(tr);
     return;
   }
 
-  // Cluster section headers when viewing All
   let lastCluster = null;
   filtered.forEach(b => {
     if (activeCluster === 'All' && b.cluster !== lastCluster) {
@@ -115,17 +123,22 @@ function renderTable() {
       hdr.innerHTML = `<td colspan="2">${b.cluster}</td>`;
       body.appendChild(hdr);
     }
-
     const tagClass = clusterColors[b.cluster] || '';
-    const tr = document.createElement('tr');
-    tr.className = 'clickable';
+    const warm     = warmNames[b.name] || '';
+    const tr       = document.createElement('tr');
+    tr.className   = 'clickable';
     if (b.name === orbState.anchor) tr.classList.add('anchor-highlight');
     tr.innerHTML = `
       <td>
-        <strong>${b.name}</strong>
-        ${warmNames[b.name] ? `<div class="small" style="color:var(--color-text-muted);font-style:italic;margin-top:.15rem">${warmNames[b.name]}</div>` : ''}
+        <span class="behavior-name">${b.name}</span>
+        ${warm ? `<span class="behavior-warm">${warm}</span>` : ''}
       </td>
-      <td><span class="cluster-tag ${tagClass}" aria-hidden="true"></span><span class="small muted">${b.cluster}</span></td>
+      <td>
+        <span style="display:inline-flex;align-items:center">
+          <span class="cluster-tag ${tagClass}" aria-hidden="true"></span>
+          <span class="small muted">${b.cluster}</span>
+        </span>
+      </td>
     `;
     tr.onclick = () => toggleDetail(b, tr);
     body.appendChild(tr);
@@ -134,13 +147,11 @@ function renderTable() {
   if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
-// ── SMOOTH ROW EXPAND ─────────────────────────────────────────
+// — SMOOTH ROW EXPAND ——————————————————————————————————————
 function toggleDetail(b, tr) {
-  // Close existing
   const existing = document.getElementById('detailRow');
   if (existing) {
-    const inner = existing.querySelector('.detail-inner');
-    inner.classList.remove('open');
+    existing.querySelector('.detail-inner').classList.remove('open');
     setTimeout(() => existing.remove(), 260);
     if (openDetailRow === tr) { openDetailRow = null; return; }
   }
@@ -152,49 +163,48 @@ function toggleDetail(b, tr) {
     <td colspan="2">
       <div class="detail-inner" id="detailInner">
         <div class="detail-inner-content">
-          <div class="detail-grid" style="margin-top:0">
-            <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
-            <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
-            <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
-            <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
-            <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
-            <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
-          </div>
-          <div style="margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px solid var(--color-border)">
-            <div class="small muted" style="margin-bottom:var(--space-2)">Typical pairing cycle: ${b.pairNote}</div>
-            <button class="btn" style="font-size:var(--text-xs)" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">See what happens when this meets another pattern &rarr;</button>
+          <div class="detail-content-inner">
+            <div class="detail-grid">
+              <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
+              <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
+              <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
+              <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
+              <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
+              <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
+            </div>
+            <div class="detail-footer">
+              <span class="small muted">Typical pairing: ${b.pairNote}</span>
+              <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
+                See what happens when this meets another pattern &rarr;
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </td>
   `;
   tr.after(dr);
-  // Trigger animation next frame
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.getElementById('detailInner').classList.add('open');
-    });
-  });
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.getElementById('detailInner').classList.add('open');
+  }));
 }
 
-// ── ANCHOR HIGHLIGHT ──────────────────────────────────────────
+// — ANCHOR HIGHLIGHT ——————————————————————————————————————
 function highlightAnchor(name) {
   requestAnimationFrame(() => {
     document.querySelectorAll('#matrixBody tr').forEach(row => {
-      const strong = row.querySelector('strong');
-      if (strong && strong.textContent.trim() === name) {
+      const el = row.querySelector('.behavior-name');
+      if (el && el.textContent.trim() === name) {
         row.classList.add('anchor-highlight');
         row.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const b = behaviors.find(bh => bh.name === name);
-        if (b) {
-          setTimeout(() => toggleDetail(b, row), 400);
-        }
+        if (b) setTimeout(() => toggleDetail(b, row), 400);
       }
     });
   });
 }
 
-// ── CYCLES TAB ────────────────────────────────────────────────
+// — CYCLES ——————————————————————————————————————————————————
 function fillSelects() {
   const aSel = document.getElementById('aSelect');
   const bSel = document.getElementById('bSelect');
@@ -202,13 +212,12 @@ function fillSelects() {
   behaviors.forEach((b, i) => {
     [aSel, bSel].forEach(sel => {
       const o = document.createElement('option');
-      o.value = i;
-      o.textContent = b.name;
+      o.value = i; o.textContent = b.name;
       sel.appendChild(o);
     });
   });
-  const anchorIdx = orbState.anchor ? behaviors.findIndex(b => b.name === orbState.anchor) : -1;
-  aSel.value = anchorIdx > -1 ? anchorIdx : 1;
+  const ai = orbState.anchor ? behaviors.findIndex(b => b.name === orbState.anchor) : -1;
+  aSel.value = ai > -1 ? ai : 1;
   bSel.value = 2;
   updateCycle();
   aSel.addEventListener('change', updateCycle);
@@ -226,31 +235,25 @@ function updateCycle() {
   document.getElementById('bFear').textContent  = 'Resistance: ' + b.resistance;
   document.getElementById('cycleOut').innerHTML = `
     <strong>What this cycle looks like:</strong><br>
-    When one person uses <em>${a.name}</em> &mdash; ${a.logic.toLowerCase()} &mdash;
-    the other often responds with <em>${b.name}</em>.
-    <br><br>
+    When one person uses <em>${a.name}</em> — ${a.logic.toLowerCase()} —
+    the other often responds with <em>${b.name}</em>.<br><br>
     <strong>The loop:</strong> ${a.pairNote}<br>
-    <strong>The other side:</strong> ${b.pairNote}
-    <br><br>
+    <strong>The other side:</strong> ${b.pairNote}<br><br>
     <strong>Where both people are stuck:</strong><br>
     One fears that ${a.fear.toLowerCase()}<br>
-    The other fears that ${b.fear.toLowerCase()}
-    <br><br>
+    The other fears that ${b.fear.toLowerCase()}<br><br>
     <strong>A way through:</strong> ${a.healthier} On the other side: ${b.healthier.toLowerCase()}
   `;
 }
 
-function goToCycles(behaviorName) {
+function goToCycles(name) {
   document.querySelector('[data-tab="cycles"]').click();
   if (!document.getElementById('aSelect').children.length) fillSelects();
-  const idx = behaviors.findIndex(b => b.name === behaviorName);
-  if (idx > -1) {
-    document.getElementById('aSelect').value = idx;
-    updateCycle();
-  }
+  const idx = behaviors.findIndex(b => b.name === name);
+  if (idx > -1) { document.getElementById('aSelect').value = idx; updateCycle(); }
 }
 
-// ── WHERE AM I — GUIDE ────────────────────────────────────────
+// — WHERE AM I ———————————————————————————————————————————
 const gState = { energy: null, direction: null, anchor: null };
 
 const gDistrictMap = {
@@ -275,13 +278,11 @@ function gAdvance(toStep, value) {
   if (toStep === 2) gState.energy    = value;
   if (toStep === 3) gState.direction = value;
   if (toStep === 4) gState.anchor    = value;
-
   if (toStep === 3) buildGRecCards();
   if (toStep === 4) buildGResult();
-
   document.querySelectorAll('.guide-step').forEach(s => s.classList.remove('active'));
-  const stepMap = { 2:'gStep2', 3:'gStep3', 4:'gResult' };
-  const next = document.getElementById(stepMap[toStep]);
+  const ids = { 2:'gStep2', 3:'gStep3', 4:'gResult' };
+  const next = document.getElementById(ids[toStep]);
   if (next) {
     next.classList.add('active');
     const f = next.querySelector('button, input');
@@ -291,8 +292,8 @@ function gAdvance(toStep, value) {
 
 function gBack(toStep) {
   document.querySelectorAll('.guide-step').forEach(s => s.classList.remove('active'));
-  const stepMap = { 1:'gStep1', 2:'gStep2', 3:'gStep3' };
-  const prev = document.getElementById(stepMap[toStep]);
+  const ids = { 1:'gStep1', 2:'gStep2', 3:'gStep3' };
+  const prev = document.getElementById(ids[toStep]);
   if (prev) {
     prev.classList.add('active');
     const f = prev.querySelector('button');
@@ -301,11 +302,12 @@ function gBack(toStep) {
 }
 
 function buildGRecCards() {
-  const energy    = gState.energy    || 'unsure';
-  const direction = gState.direction || 'both';
-  const clusters  = (gDistrictMap[energy] && gDistrictMap[energy][direction]) || [];
-  const matched   = behaviors.filter(b => clusters.includes(b.cluster)).slice(0, 4);
-  const list      = matched.length ? matched : behaviors.slice(0, 4);
+  const e  = gState.energy    || 'unsure';
+  const d  = gState.direction || 'both';
+  const cl = (gDistrictMap[e] && gDistrictMap[e][d]) || [];
+  const list = (behaviors.filter(b => cl.includes(b.cluster)).slice(0, 4).length
+    ? behaviors.filter(b => cl.includes(b.cluster)).slice(0, 4)
+    : behaviors.slice(0, 4));
   const container = document.getElementById('gRecCards');
   container.innerHTML = '';
   list.forEach(b => {
@@ -332,9 +334,7 @@ function buildGResult() {
   `;
 }
 
-function gSkip() {
-  document.querySelector('[data-tab="browse"]').click();
-}
+function gSkip() { document.querySelector('[data-tab="browse"]').click(); }
 
 function gGoToBrowse() {
   orbState.anchor = gState.anchor;
@@ -350,7 +350,7 @@ function gReset() {
   if (f) f.focus();
 }
 
-// ── THEME TOGGLE ──────────────────────────────────────────────
+// — THEME ——————————————————————————————————————————————————
 (function () {
   const d = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', d);
@@ -362,7 +362,7 @@ function gReset() {
   });
 })();
 
-// ── INIT ──────────────────────────────────────────────────────
+// — INIT ———————————————————————————————————————————————————
 renderTabs();
 renderTable();
 if (orbState.anchor) setTimeout(() => highlightAnchor(orbState.anchor), 200);
