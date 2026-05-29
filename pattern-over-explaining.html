@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Over-explaining — Relationship Regulation Atlas</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=zodiak@400,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+      --space-1:.25rem; --space-2:.5rem;  --space-3:.75rem; --space-4:1rem;
+      --space-5:1.25rem;--space-6:1.5rem; --space-8:2rem;   --space-10:2.5rem;
+      --space-12:3rem;  --space-16:4rem;  --space-20:5rem;
+      --color-bg:#f7f6f2;
+      --color-surface:#f2f1ed;
+      --color-surface-2:#edeae5;
+      --color-border: oklch(from #28251d l c h / 0.13);
+      --color-text:#28251d;
+      --color-text-muted:#6f6b63;
+      --color-text-faint:#aaa89f;
+      --color-primary:#01696f;
+      --shadow-card: 0 1px 3px rgba(25,20,10,.07), 0 6px 20px rgba(25,20,10,.08);
+      --radius-sm:.5rem; --radius-md:.9rem;
+      --font-body:'Satoshi',sans-serif;
+      --font-display:'Zodiak',serif;
+      --expand-duration: 420ms;
+      --expand-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614;
+      --color-surface:#232220;
+      --color-surface-2:#2a2927;
+      --color-border: oklch(from #e3e0d9 l c h / 0.10);
+      --color-text:#e3e0d9;
+      --color-text-muted:#aaa49a;
+      --color-text-faint:#706c65;
+      --color-primary:#4f98a3;
+      --shadow-card: 0 1px 3px rgba(0,0,0,.28), 0 6px 24px rgba(0,0,0,.32);
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:var(--font-body);
+      font-size:var(--text-base);
+      line-height:1.6;
+      background:var(--color-bg);
+      color:var(--color-text);
+      min-height:100dvh;
+      -webkit-font-smoothing:antialiased;
+    }
+    a, button { transition:color .15s, background .15s, border-color .15s, opacity .15s; }
+    :focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; border-radius:var(--radius-sm); }
+    img, svg { display:block; max-width:100%; }
+
+    /* TOPBAR */
+    .topbar {
+      position:sticky; top:0; z-index:10;
+      background:color-mix(in oklab, var(--color-bg) 88%, transparent);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--color-border);
+    }
+    .topbar-inner {
+      display:flex; gap:var(--space-4); align-items:center;
+      justify-content:space-between;
+      max-width:1200px; margin:0 auto;
+      padding:var(--space-3) clamp(var(--space-4), 4vw, var(--space-8));
+    }
+    .brand {
+      display:flex; gap:.75rem; align-items:center;
+      text-decoration:none; color:inherit;
+    }
+    .logo {
+      width:32px; height:32px; border-radius:9px; flex-shrink:0;
+      background:linear-gradient(135deg, var(--color-primary) 0%, #964219 100%);
+    }
+    .brand-name {
+      font-family:var(--font-display);
+      font-size:var(--text-base);
+      color:var(--color-text);
+    }
+    .toolbar { display:flex; gap:.5rem; align-items:center; }
+    .btn {
+      border:1px solid var(--color-border);
+      background:var(--color-surface);
+      color:var(--color-text);
+      border-radius:999px;
+      padding:.5rem .9rem;
+      font-size:var(--text-sm);
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:.3rem;
+      cursor:pointer;
+      font-family:var(--font-body);
+    }
+    .btn:hover { background:var(--color-surface-2); }
+
+    /* LAYOUT */
+    .wrap {
+      max-width:1200px; margin:0 auto;
+      padding: var(--space-4) clamp(var(--space-4), 4vw, var(--space-8));
+    }
+    .content-col { max-width:640px; }
+
+    /* HERO */
+    .branch-hero {
+      padding:var(--space-10) 0 var(--space-8);
+      border-bottom:1px solid var(--color-border);
+      margin-bottom:var(--space-10);
+    }
+    .branch-eyebrow {
+      display:block;
+      font-size:var(--text-xs);
+      color:var(--color-text-faint);
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      margin-bottom:var(--space-4);
+    }
+    .branch-title {
+      font-family:var(--font-display);
+      font-size:var(--text-2xl);
+      line-height:1.05;
+      margin:0 0 var(--space-3);
+    }
+    .branch-sub {
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+    }
+
+    /* CARD */
+    .bcard {
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-md);
+      padding:var(--space-6);
+      box-shadow:var(--shadow-card);
+    }
+
+    /* Descriptor: bold so hierarchy holds in grayscale (Livingstone) */
+    .bcard-descriptor {
+      font-family:var(--font-display);
+      font-size:var(--text-lg);
+      font-weight:700;
+      color:var(--color-primary);
+      line-height:1.3;
+      margin-bottom:var(--space-4);
+    }
+    .bcard-tags { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:var(--space-5); }
+    .tag {
+      font-size:var(--text-xs);
+      padding:.2rem .55rem;
+      border-radius:999px;
+      background:var(--color-surface-2);
+      border:1px solid var(--color-border);
+      color:var(--color-text-muted);
+    }
+
+    /* Surface layer: 2 rows only */
+    .bcard-surface { display:flex; flex-direction:column; gap:var(--space-3); }
+    .bcard-row {
+      font-size:var(--text-sm);
+      line-height:1.65;
+      color:var(--color-text);
+    }
+    .bcard-through {
+      padding-top:var(--space-4);
+      margin-top:var(--space-2);
+      border-top:1px solid var(--color-border);
+      font-size:var(--text-sm);
+      color:var(--color-text-muted);
+      font-style:italic;
+      line-height:1.65;
+    }
+
+    /* EXPAND TRIGGER */
+    .expand-trigger {
+      display:inline-flex; align-items:center; gap:.35rem;
+      margin-top:var(--space-5);
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+      cursor:pointer;
+      background:none; border:none;
+      font-family:var(--font-body);
+      padding:0;
+      letter-spacing:.02em;
+    }
+    .expand-trigger:hover { color:var(--color-text); }
+    .expand-icon {
+      display:inline-block;
+      transition:transform var(--expand-duration) var(--expand-ease);
+      font-style:normal;
+    }
+    .expand-trigger[aria-expanded="true"] .expand-icon {
+      transform:rotate(180deg);
+    }
+
+    /* EXPAND PANEL
+       420ms, deceleration curve, roots from within the card.
+       Livingstone: slow, from-within, no snap, no bounce.
+    */
+    .bcard-expand {
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:0fr;
+      transition:grid-template-rows var(--expand-duration) var(--expand-ease);
+    }
+    .bcard-expand[aria-hidden="false"] {
+      grid-template-rows:1fr;
+    }
+    .bcard-expand-inner {
+      overflow:hidden;
+      min-height:0;
+    }
+    .bcard-expand-content {
+      display:flex; flex-direction:column; gap:var(--space-3);
+      padding-top:var(--space-5);
+      border-top:1px solid var(--color-border);
+      margin-top:var(--space-5);
+    }
+    /* Covering row: no label, indented, italic — breaks the rhythm */
+    .bcard-covering {
+      font-size:var(--text-sm);
+      line-height:1.65;
+      padding-left:var(--space-4);
+      color:var(--color-text-muted);
+      font-style:italic;
+    }
+
+    /* RESOURCING LAYER */
+    .resourcing {
+      margin-top:var(--space-8);
+      padding-top:var(--space-8);
+      border-top:1px solid var(--color-border);
+    }
+    .r-framing {
+      font-family:var(--font-display);
+      font-size:var(--text-lg);
+      color:var(--color-text);
+      line-height:1.5;
+      margin:0 0 var(--space-3);
+      max-width:50ch;
+    }
+    .r-grounding {
+      font-size:var(--text-xs);
+      color:var(--color-text-faint);
+      letter-spacing:.02em;
+      margin-bottom:var(--space-8);
+    }
+
+    .r-rail { display:flex; flex-direction:column; gap:var(--space-8); }
+    .r-block { font-size:var(--text-base); line-height:1.75; }
+    .r-label {
+      display:block;
+      font-size:var(--text-sm);
+      font-style:italic;
+      color:var(--color-text-muted);
+      margin:0 0 var(--space-2);
+    }
+    .r-block p { max-width:62ch; color:var(--color-text); }
+    .r-block p + p { margin-top:var(--space-3); }
+    .r-block.r-internal,
+    .r-block.r-move {
+      padding-left:var(--space-4);
+      border-left:2px solid var(--color-primary);
+    }
+
+    /* FLOOR
+       space-20 above. The close needs room to arrive.
+       Zeki: beauty as resolution — the page feels whole here.
+    */
+    .r-floor {
+      margin-top:var(--space-20);
+      padding-top:var(--space-6);
+      border-top:1px solid var(--color-border);
+      display:flex;
+      flex-direction:column;
+      gap:var(--space-5);
+    }
+    .r-closing {
+      font-family:var(--font-display);
+      font-size:var(--text-lg);
+      color:var(--color-text);
+      line-height:1.5;
+    }
+    .r-exit {
+      font-size:var(--text-sm);
+      color:var(--color-text-muted);
+      text-decoration:none;
+    }
+    .r-exit:hover { color:var(--color-text); text-decoration:underline; }
+
+    /* Legal: smallest, most muted, last. Pure utility. */
+    .r-legal {
+      display:flex; flex-direction:column; gap:var(--space-2);
+      padding-top:var(--space-4);
+      border-top:1px solid var(--color-border);
+    }
+    .r-legal p {
+      font-size:var(--text-xs);
+      color:var(--color-text-faint);
+      line-height:1.65;
+      max-width:58ch;
+    }
+    .r-legal a { color:var(--color-text-muted); text-underline-offset:2px; }
+    .r-legal a:hover { color:var(--color-text); }
+
+    footer {
+      border-top:1px solid var(--color-border);
+      margin-top:var(--space-12);
+      padding:var(--space-8) clamp(var(--space-4), 4vw, var(--space-8));
+    }
+    footer p { font-size:var(--text-xs); color:var(--color-text-faint); }
+
+    @media (max-width:700px) {
+      .branch-title { font-size:clamp(1.6rem, 6vw, 2.5rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration:.01ms !important;
+        animation-duration:.01ms !important;
+      }
+      .bcard-expand { grid-template-rows:1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <div class="logo" aria-hidden="true"></div>
+      <span class="brand-name">Relationship Regulation Atlas</span>
+    </a>
+    <div class="toolbar">
+      <button class="btn" data-theme-toggle aria-label="Toggle theme">&#9680;</button>
+      <a class="btn" href="index.html">&#8592; All patterns</a>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="branch-hero">
+    <span class="branch-eyebrow">Communication &middot; Conflict</span>
+    <h1 class="branch-title">Over-explaining</h1>
+    <p class="branch-sub">One pattern, read all the way through.</p>
+  </section>
+
+  <div class="content-col">
+
+    <div class="bcard">
+
+      <p class="bcard-descriptor">trying to make them understand</p>
+
+      <div class="bcard-tags">
+        <span class="tag">Move toward</span>
+        <span class="tag">Communication / Conflict</span>
+      </div>
+
+      <!-- Surface layer: 2 rows + exit ramp -->
+      <div class="bcard-surface">
+        <div class="bcard-row">
+          <strong>What it does:</strong> The other person floods and withdraws more. The explaining confirms the pursuer dynamic.
+        </div>
+        <div class="bcard-through">
+          A way through: one clear, short statement of need. Then hold the silence.
+        </div>
+      </div>
+
+      <button class="expand-trigger" aria-expanded="false" aria-controls="card-expand" id="expand-btn">
+        <span class="expand-icon" aria-hidden="true">&#8964;</span>
+        <span class="expand-label">Read more</span>
+      </button>
+
+      <!-- Expand panel: roots from within the card -->
+      <div class="bcard-expand" id="card-expand" aria-hidden="true">
+        <div class="bcard-expand-inner">
+          <div class="bcard-expand-content">
+            <div class="bcard-row">
+              <strong>Why this made sense:</strong> You were trying to secure understanding and prevent abandonment through words and clarity.
+            </div>
+            <div class="bcard-row">
+              <strong>What keeps it in place:</strong> If you stop, you may have to accept that they simply are not meeting you.
+            </div>
+            <div class="bcard-covering">
+              Your own anger and grief about the gap between what you need and what you&rsquo;re getting.
+            </div>
+            <div class="bcard-row">
+              <strong>What stopping feels like:</strong> Without the right explanation, you will be misunderstood, blamed, or left.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESOURCING LAYER -->
+    <div class="resourcing">
+
+      <p class="r-framing">This is a defense you built for a reason. Not a flaw in you.</p>
+      <p class="r-grounding">Feel your feet, or the chair, before you read on.</p>
+
+      <div class="r-rail">
+
+        <div class="r-block">
+          <span class="r-label">What if it comes true</span>
+          <p>You say it once, you stop explaining, and they still don&rsquo;t get it. The gap is real and it stays.</p>
+        </div>
+
+        <div class="r-block r-internal">
+          <span class="r-label">What holds: inside you</span>
+          <p>You&rsquo;ve already lived through being misunderstood and kept going. You&rsquo;re not actually managed by it.</p>
+          <p>The part of you that kept going is still here.</p>
+        </div>
+
+        <div class="r-block r-move">
+          <span class="r-label">One move</span>
+          <p>Say the thing once. Then stop, and let the silence sit for one breath without adding to it.</p>
+        </div>
+
+      </div>
+
+      <div class="r-floor">
+        <p class="r-closing">You can sit here. There&rsquo;s no next thing required.</p>
+        <a href="index.html" class="r-exit">&#8592; Back to the map</a>
+
+        <div class="r-legal">
+          <p>This is a reflection tool, not therapy or medical advice.</p>
+          <p>If you&rsquo;re in crisis or immediate danger, call your local emergency number or visit <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="wrap">
+  <p>Relationship Regulation Atlas &mdash; a work in progress.</p>
+</footer>
+
+<script>
+(function(){
+  const toggle = document.querySelector('[data-theme-toggle]');
+  const root = document.documentElement;
+  let theme = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  root.setAttribute('data-theme', theme);
+  toggle && toggle.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', theme);
+  });
+
+  const btn = document.getElementById('expand-btn');
+  const panel = document.getElementById('card-expand');
+  const label = btn.querySelector('.expand-label');
+
+  btn.addEventListener('click', () => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    panel.setAttribute('aria-hidden', String(expanded));
+    label.textContent = expanded ? 'Read more' : 'Show less';
+  });
+})();
+</script>
+</body>
+</html>
