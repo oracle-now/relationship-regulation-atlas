@@ -1,6 +1,6 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js  v2.1
-   Browse, Cycles, Where am I? — polish pass
+   RELATIONSHIP REGULATION ATLAS — app.js  v2.2
+   Browse, Cycles, Where am I? + Resourcing layer (phase 1)
    ============================================================ */
 
 // — ANCHOR ————————————————————————————————————————————————
@@ -159,6 +159,17 @@ function toggleDetail(b, tr) {
   const dr = document.createElement('tr');
   dr.id = 'detailRow';
   dr.className = 'detail-row';
+
+  // Determine entitlement — phase 1: open/static (all entitled).
+  // Phase 2: replace with real auth check (e.g. session cookie / JWT).
+  const entitled = true; // TODO(phase-2): replace with auth check
+
+  // Resourcing block: authed → full entry | anon → locked door
+  // Safety floor mounts exactly once, regardless of state. (test_5)
+  const resourcingBlock = (typeof resourcing !== 'undefined' && resourcing[b.name])
+    ? (entitled ? renderResourcing(b) : renderLockedDoor())
+    : '';
+
   dr.innerHTML = `
     <td colspan="2">
       <div class="detail-inner" id="detailInner">
@@ -172,6 +183,8 @@ function toggleDetail(b, tr) {
               <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
               <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
             </div>
+            ${resourcingBlock}
+            ${renderSafetyFloor()}
             <div class="detail-footer">
               <span class="small muted">Typical pairing: ${b.pairNote}</span>
               <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">

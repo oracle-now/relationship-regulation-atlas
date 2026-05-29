@@ -521,6 +521,151 @@ tbody tr.clickable { cursor:pointer }
   margin-top:var(--space-6);
 }
 
+/* ═══════════════════════════════════════════════════
+   RESOURCING LAYER
+   Gated layer that lives inside .detail-content-inner,
+   after .detail-grid. Mounts in both authed and anon states.
+   Safety floor (.r-floor) mounts in ALL states exactly once.
+═══════════════════════════════════════════════════ */
+
+.resourcing {
+  margin-top:var(--space-5);
+  padding:var(--space-5);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-md);
+  background:color-mix(in oklab, var(--color-primary-2) 12%, var(--color-surface));
+}
+
+.r-grounding {
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  letter-spacing:.03em;
+  margin:0 0 var(--space-3);
+}
+
+.r-framing {
+  font-size:var(--text-sm);
+  color:var(--color-text-muted);
+  font-style:italic;
+  margin:0 0 var(--space-4);
+}
+
+.r-rail {
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-3);
+}
+
+.r-block {
+  padding:var(--space-3) var(--space-4);
+  background:var(--color-surface);
+  border-radius:var(--radius-sm);
+  border:1px solid var(--color-border);
+  font-size:var(--text-sm);
+  line-height:1.7;
+}
+
+.r-block p { margin:var(--space-2) 0 0; }
+
+.r-label {
+  display:block;
+  font-size:var(--text-xs);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--color-primary);
+  font-weight:700;
+  margin-bottom:.25rem;
+}
+
+/* Locked door — anon state */
+.r-door {
+  margin-top:var(--space-5);
+  padding:var(--space-5);
+  border:1px dashed var(--color-border);
+  border-radius:var(--radius-md);
+  background:var(--color-surface-2);
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-3);
+}
+
+.r-door-label {
+  font-size:var(--text-sm);
+  color:var(--color-text);
+  margin:0;
+}
+
+.r-door-sub {
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  margin:0;
+}
+
+/* Safety floor — UNGATED, mounts in every state */
+.r-floor {
+  margin-top:var(--space-5);
+  padding:var(--space-4);
+  border-top:1px solid var(--color-border);
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-2);
+}
+
+.r-exit {
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  text-decoration:none;
+}
+.r-exit:hover, .r-exit:focus-visible {
+  color:var(--color-text);
+  text-decoration:underline;
+}
+
+.r-not-therapy {
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  margin:0;
+}
+
+.r-crisis {
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  margin:0;
+  line-height:1.65;
+}
+
+/* Crisis link — highest-contrast token in the floor.
+   10.92:1 on --color-surface (#1a1a1f dark surface).
+   Underline ensures it is not color-dependent (WCAG 1.4.1).
+   Forward-guard: do NOT reduce this to the body accent (#3aa6a0 = 5.90:1). */
+.r-crisis a {
+  color:#8fd6ff;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.r-crisis a:focus-visible {
+  outline:2px solid #8fd6ff;
+  outline-offset:2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   MOTION SAFETY — prefers-reduced-motion
+   Kills all transitions site-wide when the OS reduce-motion
+   setting is active. The three selectors below are intentional:
+   - .detail-content-inner: the row expand transition (existing)
+   - .resourcing: forward-guard (no current animation, prevents future sneak)
+   - .r-door:     forward-guard (same)
+   Do NOT remove the forward-guards without a deliberate audit.
+═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .detail-content-inner,
+  .resourcing,
+  .r-door {
+    transition: none;
+    animation: none;
+  }
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width:900px) {
   .hero-grid, .grid-2, .cards, .legend, .detail-grid, .ref-grid { grid-template-columns:1fr }
