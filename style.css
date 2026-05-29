@@ -121,7 +121,6 @@ img, svg { display:block; max-width:100%; }
   width:32px; height:32px; border-radius:9px; flex-shrink:0;
   background:linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
 }
-/* Topbar brand title + subtitle — Variation D uses display font for name */
 .brand-name {
   font-family:var(--font-display);
   font-size:var(--text-base);
@@ -133,7 +132,6 @@ img, svg { display:block; max-width:100%; }
   color:var(--color-text-muted);
   display:block;
 }
-/* Legacy: index.html uses .brand h1 / .brand p */
 .brand h1 { font-family:var(--font-display); font-size:var(--text-base); margin:0; line-height:1.2; }
 .brand p  { margin:0; color:var(--color-text-muted); font-size:var(--text-xs); }
 
@@ -367,6 +365,13 @@ tbody tr.clickable { cursor:pointer; }
   background:transparent; padding:var(--space-3) 0;
   border-bottom:1px solid oklch(from var(--color-text) l c h / 0.07);
 }
+/* Shared eyebrow label for all behavior detail cards */
+.detail-eyebrow {
+  display:block; font-size:var(--text-xs); text-transform:uppercase;
+  letter-spacing:.06em; color:var(--color-text-muted); font-weight:600;
+  margin-bottom:var(--space-2);
+}
+/* Keep strong rule as fallback for any existing markup */
 .detail-block strong {
   display:block; font-size:var(--text-xs); text-transform:uppercase;
   letter-spacing:.06em; color:var(--color-text-muted); font-weight:600; margin-bottom:var(--space-2);
@@ -385,8 +390,9 @@ tbody tr.clickable { cursor:pointer; }
 .detail-content-inner { max-width:960px; }
 
 /* ═══════════════════════════════════════════════
-   OVER-EXPLAINING CARD — Option B (Variation D)
-   Progressive disclosure · same token language
+   OVER-EXPLAINING CARD — v5
+   Calm typography · reframe visible · grounding prompt
+   Progressive disclosure: what if / what holds ×2 / one move
 ═══════════════════════════════════════════════ */
 .oe-card { max-width:720px; padding:var(--space-2) 0; }
 .oe-surface {
@@ -396,27 +402,74 @@ tbody tr.clickable { cursor:pointer; }
   margin-bottom:var(--space-5);
 }
 .oe-surface-name { display:flex; flex-direction:column; gap:var(--space-1); }
-.oe-name { font-family:var(--font-display); font-size:var(--text-xl); line-height:1.1; color:var(--color-text); }
+.oe-name {
+  font-family:var(--font-body);
+  font-size:clamp(1.8rem, 2.8vw, 2.4rem);
+  font-weight:500;
+  line-height:1.1;
+  letter-spacing:-0.012em;
+  color:var(--color-text);
+}
 .oe-warm { font-size:var(--text-sm); font-style:italic; color:var(--color-text-muted); line-height:1.4; }
 .oe-cluster-tag {
   display:inline-flex; align-items:center; gap:var(--space-2);
   white-space:nowrap; font-size:var(--text-xs); color:var(--color-text-muted); padding-top:var(--space-1);
 }
+
+/* Preview grid — short-term logic + long-term cost */
 .oe-preview { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-5) var(--space-8); margin-bottom:var(--space-5); }
 .oe-block { display:flex; flex-direction:column; gap:var(--space-2); }
-.oe-block p { margin:0; font-size:var(--text-sm); line-height:1.75; color:var(--color-text); max-width:60ch; }
-.oe-label {
-  display:block; font-size:var(--text-xs); font-style:italic;
-  color:var(--color-text-muted); font-weight:400; letter-spacing:0; text-transform:none;
+.oe-block p { margin:0; font-size:var(--text-base); line-height:1.72; color:var(--color-text); max-width:60ch; }
+
+/* Shared eyebrow for OE card blocks */
+.oe-eyebrow {
+  display:block; font-size:var(--text-xs); font-weight:600;
+  letter-spacing:.075em; text-transform:uppercase;
+  color:var(--color-text-muted); margin-bottom:var(--space-2);
 }
+
+/* Reframe — visible by default, plain bordered surface */
+.oe-reframe {
+  margin:0 0 var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  border:1px solid oklch(from var(--color-text) l c h / 0.07);
+  border-radius:var(--radius-sm);
+}
+.oe-reframe p {
+  margin:0;
+  max-width:50ch;
+  font-size:var(--text-base);
+  font-weight:500;
+  line-height:1.56;
+}
+
+/* Grounding prompt — quiet, faint, before the toggle */
+.oe-threshold {
+  margin:0 0 var(--space-4);
+  max-width:44ch;
+  font-size:var(--text-xs);
+  line-height:1.6;
+  color:var(--color-text-faint);
+}
+
+/* Toggle */
 .oe-toggle {
   display:inline-flex; align-items:center; gap:var(--space-2);
-  background:none; border:none; padding:0;
+  background:none; border:none;
+  padding:var(--space-1) var(--space-2);
+  margin-left:calc(-1 * var(--space-2));
   font-family:var(--font-body); font-size:var(--text-sm);
   color:var(--color-primary); cursor:pointer; margin-bottom:var(--space-1);
+  border-radius:var(--radius-sm);
 }
-.oe-toggle:hover, .oe-toggle:focus-visible { color:var(--color-text); outline:none; }
+.oe-toggle:hover, .oe-toggle:focus-visible {
+  color:var(--color-text);
+  background:oklch(from var(--color-primary) l c h / 0.06);
+  outline:none;
+}
 .oe-toggle-icon { transition:transform .22s var(--expand-ease); display:inline-block; }
+
+/* Depth expand */
 .oe-depth {
   display:grid; grid-template-rows:0fr;
   transition:grid-template-rows var(--expand-duration) var(--expand-ease);
@@ -428,9 +481,14 @@ tbody tr.clickable { cursor:pointer; }
   gap:var(--space-5) var(--space-8);
   padding-top:var(--space-5); padding-bottom:var(--space-2);
 }
-.oe-block.oe-block-healthier {
+
+/* One move — accent block spanning full width */
+.oe-block.oe-block-move {
   grid-column:1 / -1;
-  padding-left:var(--space-4); border-left:2px solid var(--color-primary);
+  padding:var(--space-3) var(--space-4);
+  background:oklch(from var(--color-primary) l c h / 0.04);
+  border:1px solid oklch(from var(--color-primary) l c h / 0.08);
+  border-radius:var(--radius-sm);
 }
 
 /* ═══════════════════════════════════════════════
@@ -528,7 +586,6 @@ tbody tr.clickable { cursor:pointer; }
 .r-door-label { font-size:var(--text-sm); color:var(--color-text); margin:0; }
 .r-door-sub   { font-size:var(--text-xs); color:var(--color-text-muted); margin:0; }
 
-/* Floor — space-20 above, room for the close to arrive */
 .r-floor {
   margin-top:var(--space-20);
   padding-top:var(--space-6);
@@ -544,13 +601,11 @@ tbody tr.clickable { cursor:pointer; }
 .r-exit { font-size:var(--text-sm); color:var(--color-text-muted); text-decoration:none; }
 .r-exit:hover, .r-exit:focus-visible { color:var(--color-text); text-decoration:underline; }
 
-/* Legal/safety — smallest, most faint, last */
 .r-legal { display:flex; flex-direction:column; gap:var(--space-2); padding-top:var(--space-4); border-top:1px solid var(--color-border); }
 .r-legal p { font-size:var(--text-xs); color:var(--color-text-faint); line-height:1.65; max-width:58ch; }
 .r-legal a { color:var(--color-text-muted); text-underline-offset:2px; }
 .r-legal a:hover { color:var(--color-text); }
 
-/* Legacy aliases for resourcing.js output */
 .r-not-therapy { font-size:var(--text-xs); color:var(--color-text-faint); margin:0; }
 .r-crisis { font-size:var(--text-xs); color:var(--color-text-faint); margin:0; line-height:1.65; }
 .r-crisis a { color:var(--color-text-muted); text-decoration:underline; text-underline-offset:2px; }
@@ -558,8 +613,6 @@ tbody tr.clickable { cursor:pointer; }
 
 /* ═══════════════════════════════════════════════
    ATLAS PAGE — TAB SYSTEM
-   (styles scoped to atlas.html inline block are
-    kept there; shared pieces live here)
 ═══════════════════════════════════════════════ */
 .cluster-tag {
   display:inline-block; width:8px; height:8px; border-radius:50%;
@@ -655,7 +708,7 @@ tbody tr.clickable { cursor:pointer; }
   .territory-detail { position:static; }
   .orb-cards { grid-template-columns:1fr; }
   .oe-preview, .oe-depth-grid { grid-template-columns:1fr; }
-  .oe-block.oe-block-healthier { grid-column:1; }
+  .oe-block.oe-block-move { grid-column:1; }
   .oe-surface { flex-direction:column; gap:var(--space-2); }
 }
 
