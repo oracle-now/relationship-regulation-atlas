@@ -1,7 +1,7 @@
 /* ============================================================
-   RELATIONSHIP REGULATION ATLAS — app.js  v2.2.1
+   RELATIONSHIP REGULATION ATLAS — app.js  v2.3.0
    Browse, Cycles, Where am I? + Resourcing layer (phase 1)
-   Hotfix: typeof guards on all cross-file function calls.
+   v2.3.0: Over-explaining progressive disclosure card (Option 3)
    ============================================================ */
 
 // — ANCHOR ————————————————————————————————————————————————
@@ -148,6 +148,108 @@ function renderTable() {
   if (orbState.anchor) highlightAnchor(orbState.anchor);
 }
 
+// — OVER-EXPLAINING CARD (Option 3: Progressive Disclosure) ————
+function buildOverExplainingCard(b) {
+  const tagClass = clusterColors[b.cluster] || '';
+  const warm     = warmNames[b.name] || '';
+
+  const hasResourcingEntry = typeof resourcing !== 'undefined' && resourcing[b.name];
+  const entitled = true; // phase-1: open
+  const resourcingBlock = hasResourcingEntry
+    ? (entitled
+        ? (typeof renderResourcing === 'function' ? renderResourcing(b) : '')
+        : (typeof renderLockedDoor === 'function' ? renderLockedDoor() : ''))
+    : '';
+  const floorBlock = typeof renderSafetyFloor === 'function' ? renderSafetyFloor() : '';
+
+  return `
+    <div class="oe-card" role="region" aria-label="Over-explaining detail">
+
+      <div class="oe-surface">
+        <div class="oe-surface-name">
+          <span class="oe-name">${b.name}</span>
+          ${warm ? `<span class="oe-warm">${warm}</span>` : ''}
+        </div>
+        <span class="oe-cluster-tag">
+          <span class="cluster-tag ${tagClass}" aria-hidden="true"></span>
+          <span>${b.cluster}</span>
+        </span>
+      </div>
+
+      <div class="oe-preview">
+        <div class="oe-block">
+          <span class="oe-label">Short-term logic</span>
+          <p>${b.logic}</p>
+        </div>
+        <div class="oe-block">
+          <span class="oe-label">Long-term cost</span>
+          <p>${b.cost}</p>
+        </div>
+      </div>
+
+      <button class="oe-toggle" aria-expanded="false" onclick="toggleOeDepth(this)">
+        <span class="oe-toggle-text">Go deeper</span>
+        <span class="oe-toggle-icon" aria-hidden="true">&#8595;</span>
+      </button>
+
+      <div class="oe-depth" id="oeDepth">
+        <div class="oe-depth-inner">
+          <div class="oe-depth-grid">
+            <div class="oe-block">
+              <span class="oe-label">Resistance</span>
+              <p>${b.resistance}</p>
+            </div>
+            <div class="oe-block">
+              <span class="oe-label">What I fear if I stop</span>
+              <p>${b.fear}</p>
+            </div>
+            <div class="oe-block">
+              <span class="oe-label">What it protects me from seeing</span>
+              <p>${b.protects}</p>
+            </div>
+            <div class="oe-block oe-block-healthier">
+              <span class="oe-label">A way through</span>
+              <p>${b.healthier}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      ${resourcingBlock}
+      ${floorBlock}
+
+      <div class="detail-footer" style="margin-top:var(--space-6)">
+        <span class="small muted">Typical pairing: ${b.pairNote}</span>
+        <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
+          See what happens when this meets another pattern &rarr;
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+function toggleOeDepth(btn) {
+  const depth   = document.getElementById('oeDepth');
+  const inner   = depth ? depth.querySelector('.oe-depth-inner') : null;
+  const textEl  = btn.querySelector('.oe-toggle-text');
+  const iconEl  = btn.querySelector('.oe-toggle-icon');
+  if (!depth || !inner) return;
+
+  const isOpen = depth.classList.contains('open');
+  if (isOpen) {
+    depth.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (textEl) textEl.textContent = 'Go deeper';
+    if (iconEl) iconEl.innerHTML = '&#8595;';
+  } else {
+    depth.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    if (textEl) textEl.textContent = 'Show less';
+    if (iconEl) iconEl.innerHTML = '&#8593;';
+  }
+}
+
 // — SMOOTH ROW EXPAND ——————————————————————————————————————
 function toggleDetail(b, tr) {
   const existing = document.getElementById('detailRow');
@@ -161,44 +263,51 @@ function toggleDetail(b, tr) {
   dr.id = 'detailRow';
   dr.className = 'detail-row';
 
-  // Entitlement — phase 1: open/static (all entitled).
-  // Phase 2: replace with real auth check (e.g. session cookie / JWT).
-  const entitled = true; // TODO(phase-2): replace with auth check
+  // Entitlement — phase 1: open/static.
+  const entitled = true;
 
-  // Cross-file call audit (see ROOM.md):
-  // renderResourcing, renderLockedDoor, renderSafetyFloor all live in
-  // resourcing.js. atlas.html may not have loaded it yet (or ever).
-  // typeof guards ensure toggleDetail never throws — cards always expand.
-  const hasResourcingEntry = typeof resourcing !== 'undefined' && resourcing[b.name];
-  const resourcingBlock = hasResourcingEntry
-    ? (entitled
-        ? (typeof renderResourcing  === 'function' ? renderResourcing(b)  : '')
-        : (typeof renderLockedDoor  === 'function' ? renderLockedDoor()   : ''))
-    : '';
-  const floorBlock = typeof renderSafetyFloor === 'function' ? renderSafetyFloor() : '';
+  let innerContent;
+
+  if (b.name === 'Over-explaining') {
+    // Option 3: progressive disclosure card
+    innerContent = buildOverExplainingCard(b);
+  } else {
+    // Default: generic detail grid for all other behaviors
+    const hasResourcingEntry = typeof resourcing !== 'undefined' && resourcing[b.name];
+    const resourcingBlock = hasResourcingEntry
+      ? (entitled
+          ? (typeof renderResourcing  === 'function' ? renderResourcing(b)  : '')
+          : (typeof renderLockedDoor  === 'function' ? renderLockedDoor()   : ''))
+      : '';
+    const floorBlock = typeof renderSafetyFloor === 'function' ? renderSafetyFloor() : '';
+
+    innerContent = `
+      <div class="detail-content-inner">
+        <div class="detail-grid">
+          <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
+          <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
+          <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
+          <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
+          <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
+          <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
+        </div>
+        ${resourcingBlock}
+        ${floorBlock}
+        <div class="detail-footer">
+          <span class="small muted">Typical pairing: ${b.pairNote}</span>
+          <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
+            See what happens when this meets another pattern &rarr;
+          </button>
+        </div>
+      </div>
+    `;
+  }
 
   dr.innerHTML = `
     <td colspan="2">
       <div class="detail-inner" id="detailInner">
         <div class="detail-inner-content">
-          <div class="detail-content-inner">
-            <div class="detail-grid">
-              <div class="detail-block"><strong>Short-term logic</strong>${b.logic}</div>
-              <div class="detail-block"><strong>Long-term cost</strong>${b.cost}</div>
-              <div class="detail-block"><strong>Resistance</strong>${b.resistance}</div>
-              <div class="detail-block"><strong>What it protects me from seeing</strong>${b.protects}</div>
-              <div class="detail-block"><strong>What I fear if I stop</strong>${b.fear}</div>
-              <div class="detail-block"><strong>A way through</strong>${b.healthier}</div>
-            </div>
-            ${resourcingBlock}
-            ${floorBlock}
-            <div class="detail-footer">
-              <span class="small muted">Typical pairing: ${b.pairNote}</span>
-              <button class="btn" onclick="goToCycles('${b.name.replace(/'/g, "\\'")}')">
-                See what happens when this meets another pattern &rarr;
-              </button>
-            </div>
-          </div>
+          ${innerContent}
         </div>
       </div>
     </td>
@@ -371,7 +480,6 @@ function gReset() {
 }
 
 // — THEME ——————————————————————————————————————————————————
-// Default: always light mode. Toggle still works for manual override.
 (function () {
   document.documentElement.setAttribute('data-theme', 'light');
   document.addEventListener('click', e => {

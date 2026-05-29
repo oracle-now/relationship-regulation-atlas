@@ -1,6 +1,7 @@
 /* ============================================================
    RELATIONSHIP REGULATION ATLAS — style.css
    Design tokens, base styles, and all component styles.
+   v2.3.0: Over-explaining Option 3 card styles + page-wide lift
    ============================================================ */
 
 /* --- DESIGN TOKENS --- */
@@ -113,7 +114,6 @@ body {
   font-weight:700;
   letter-spacing:.08em;
   text-transform:uppercase;
-  /* structural label — not a CTA, not a link */
   color:var(--color-text-muted);
   margin:0;
 }
@@ -251,7 +251,6 @@ body {
 }
 .rec-cluster {
   font-size:var(--text-xs);
-  /* structural cluster tag — muted, not primary */
   color:var(--color-text-muted);
   font-weight:600;
   text-transform:uppercase;
@@ -336,7 +335,6 @@ body {
 h2 { font-family:var(--font-display); font-size:var(--text-2xl); line-height:1.05; margin:.8rem 0 1rem }
 .sub { color:var(--color-text-muted); max-width:62ch; line-height:1.65 }
 
-/* founder-voice: personal aside register — smaller, italic, stepped back from structural prose */
 .founder-voice {
   font-size:var(--text-sm);
   font-style:italic;
@@ -370,11 +368,7 @@ h2 { font-family:var(--font-display); font-size:var(--text-2xl); line-height:1.0
   font-size:var(--text-sm);
 }
 
-/* --- TABS ---
-   Inactive tabs: neutral text on neutral surface.
-   Active tab: inverted (text-on-bg). No primary color on either state —
-   tabs are navigation, not CTAs. Primary color on inactive tabs was
-   reading as "clickable link" in dark mode and causing the "too blue" issue. */
+/* --- TABS --- */
 .tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:var(--space-4) }
 .tab {
   padding:.65rem 1rem; border-radius:999px;
@@ -396,10 +390,7 @@ h2 { font-family:var(--font-display); font-size:var(--text-2xl); line-height:1.0
   border-color:color-mix(in oklab, var(--color-border) 60%, var(--color-text));
 }
 
-/* --- MATRIX ---
-   table-layout:fixed is required for text-overflow:ellipsis to work
-   on table cells. Without it, the browser ignores overflow clipping
-   and columns wrap instead of truncating. */
+/* --- MATRIX --- */
 .grid-2 { display:grid; grid-template-columns:1.3fr .7fr; gap:var(--space-5) }
 .matrix-wrap { overflow:auto; border-radius:var(--radius-lg); border:1px solid var(--color-border) }
 table { width:100%; border-collapse:collapse; table-layout:fixed }
@@ -408,7 +399,6 @@ th { position:sticky; top:0; background:var(--color-surface-2); font-weight:600;
 tbody tr:hover td { background:color-mix(in oklab, var(--color-primary-2) 25%, var(--color-surface)) }
 tbody tr.clickable { cursor:pointer }
 
-/* Cluster column: fixed width, truncate with ellipsis */
 .browse-table td:nth-child(2),
 .browse-table th:nth-child(2) {
   width:30%;
@@ -417,7 +407,6 @@ tbody tr.clickable { cursor:pointer }
   text-overflow:ellipsis;
 }
 
-/* Empty search state */
 .matrix-empty {
   padding:var(--space-10) var(--space-4);
   text-align:center;
@@ -439,30 +428,191 @@ tbody tr.clickable { cursor:pointer }
   font-size:var(--text-xs); color:var(--color-text-muted);
 }
 
-/* detail-panel: no background tint — same surface as the row.
-   The tint was creating a visual register break between the
-   analytical grid and the resourcing section below it. */
 .detail-panel { display:none; padding:var(--space-4); border-top:1px solid var(--color-border); background:transparent }
 .detail-panel.open { display:block }
-.detail-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-3); margin-top:var(--space-3) }
-
-/* detail-block: flat content blocks, not UI cards. */
-.detail-block {
-  background:transparent;
-  padding:var(--space-3);
-  border-radius:0;
-  border:1px solid oklch(from var(--color-text) l c h / 0.08);
+.detail-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+  gap:var(--space-4);
+  margin-bottom:var(--space-5);
 }
 
-/* detail-block label: structural marker, stepped back */
+/* detail-block: flat content, not UI cards — refined for Option 3 lift */
+.detail-block {
+  background:transparent;
+  padding:var(--space-3) 0;
+  border-radius:0;
+  border-bottom:1px solid oklch(from var(--color-text) l c h / 0.07);
+}
+
 .detail-block strong {
   display:block;
   font-size:var(--text-xs);
   text-transform:uppercase;
-  letter-spacing:.05em;
+  letter-spacing:.06em;
   color:var(--color-text-muted);
-  font-weight:500;
-  margin-bottom:.4rem;
+  font-weight:600;
+  margin-bottom:var(--space-2);
+}
+
+/* detail-footer: Cycles link + pair note */
+.detail-footer {
+  padding-top:var(--space-4);
+  border-top:1px solid var(--color-border);
+  display:flex;
+  align-items:center;
+  gap:var(--space-4);
+  flex-wrap:wrap;
+  margin-top:var(--space-2);
+}
+
+/* detail-inner: smooth grid-template-rows expand */
+.detail-inner {
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.detail-inner.open { grid-template-rows:1fr; }
+.detail-inner-content { overflow:hidden; padding:0 var(--space-4); }
+.detail-inner.open .detail-inner-content { padding:var(--space-6) var(--space-4) var(--space-5); }
+.detail-content-inner { max-width:960px; }
+
+/* ═══════════════════════════════════════════════
+   OVER-EXPLAINING CARD — Option 3
+   Progressive disclosure: surface → preview →
+   "Go deeper" expand → resourcing → floor
+═══════════════════════════════════════════════ */
+
+.oe-card {
+  max-width:720px;
+  padding:var(--space-2) 0 var(--space-2);
+}
+
+/* Surface header: name + warm name + cluster */
+.oe-surface {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:var(--space-4);
+  padding-bottom:var(--space-4);
+  border-bottom:1px solid oklch(from var(--color-text) l c h / 0.08);
+  margin-bottom:var(--space-5);
+}
+
+.oe-surface-name {
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-1);
+}
+
+.oe-name {
+  font-family:var(--font-display);
+  font-size:var(--text-xl);
+  line-height:1.1;
+  color:var(--color-text);
+}
+
+.oe-warm {
+  font-size:var(--text-sm);
+  font-style:italic;
+  color:var(--color-text-muted);
+  line-height:1.4;
+}
+
+.oe-cluster-tag {
+  display:inline-flex;
+  align-items:center;
+  gap:var(--space-2);
+  white-space:nowrap;
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  padding-top:var(--space-1);
+}
+
+/* Preview: logic + cost — always visible */
+.oe-preview {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--space-5) var(--space-8);
+  margin-bottom:var(--space-5);
+}
+
+.oe-block {
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-2);
+}
+
+.oe-block p {
+  margin:0;
+  font-size:var(--text-sm);
+  line-height:1.75;
+  color:var(--color-text);
+  max-width:60ch;
+}
+
+.oe-label {
+  display:block;
+  font-size:var(--text-xs);
+  font-style:italic;
+  color:var(--color-text-muted);
+  font-weight:400;
+  letter-spacing:0;
+  text-transform:none;
+}
+
+/* Go deeper toggle button */
+.oe-toggle {
+  display:inline-flex;
+  align-items:center;
+  gap:var(--space-2);
+  background:none;
+  border:none;
+  padding:0;
+  font-family:var(--font-body);
+  font-size:var(--text-sm);
+  color:var(--color-primary);
+  cursor:pointer;
+  margin-bottom:var(--space-1);
+  transition:color .15s;
+}
+.oe-toggle:hover, .oe-toggle:focus-visible {
+  color:var(--color-text);
+  outline:none;
+}
+.oe-toggle-icon {
+  transition:transform .22s cubic-bezier(0.16,1,0.3,1);
+  display:inline-block;
+}
+
+/* Depth section: hidden by default, expands via grid-template-rows */
+.oe-depth {
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .28s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom:0;
+}
+.oe-depth.open {
+  grid-template-rows:1fr;
+  margin-bottom:var(--space-6);
+}
+.oe-depth-inner {
+  overflow:hidden;
+}
+
+.oe-depth-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--space-5) var(--space-8);
+  padding-top:var(--space-5);
+  padding-bottom:var(--space-2);
+}
+
+/* A way through: spans both columns, teal left-border accent */
+.oe-block.oe-block-healthier {
+  grid-column:1 / -1;
+  padding-left:var(--space-4);
+  border-left:2px solid var(--color-primary);
 }
 
 /* --- SEARCH --- */
@@ -520,7 +670,6 @@ tbody tr.clickable { cursor:pointer }
   font-size:var(--text-sm);
   line-height:1.65;
 }
-/* td-label: structural section marker — muted, not primary */
 .td-label {
   font-size:var(--text-xs);
   text-transform:uppercase;
@@ -557,7 +706,6 @@ tbody tr.clickable { cursor:pointer }
   margin-bottom:var(--space-8);
 }
 .ref-group { margin-bottom:var(--space-10) }
-/* ref-group-label: section divider — muted, not primary */
 .ref-group-label {
   font-size:var(--text-xs); font-weight:700;
   letter-spacing:.08em; text-transform:uppercase;
@@ -582,9 +730,6 @@ tbody tr.clickable { cursor:pointer }
 
 /* ═══════════════════════════════════════════════
    RESOURCING LAYER — Variation 3 (Synthesis)
-   • r-label: sentence-case italic (not uppercase)
-   • "What if it comes true" body: full --color-text (not muted)
-   • r-internal and r-external: teal left-border (same as r-move)
 ═══════════════════════════════════════════════ */
 
 .resourcing {
@@ -629,14 +774,9 @@ tbody tr.clickable { cursor:pointer }
 .r-block p {
   margin:var(--space-2) 0 0;
   max-width:68ch;
+  color:var(--color-text);
 }
 
-/*
-  Synthesis r-label: sentence-case italic.
-  The register shift is carried by the label itself (italic, sentence case),
-  not by uppercase structural weight. This creates a softer, more personal
-  entry into each section compared to the Director's all-caps labels.
-*/
 .r-label {
   display:block;
   font-size:var(--text-sm);
@@ -648,32 +788,11 @@ tbody tr.clickable { cursor:pointer }
   margin:0 0 var(--space-2);
 }
 
-/*
-  "What if it comes true" body text is full --color-text, not muted.
-  In Synthesis, this paragraph carries the hardest truth and must
-  read at full weight -- stepping it back to muted undersells it.
-*/
-.r-block p {
-  margin:var(--space-2) 0 0;
-  max-width:68ch;
-  color:var(--color-text);
-}
-
-/*
-  r-move: the actionable "One move" block.
-  Left border signals forward motion -- teal = primary.
-*/
 .r-block.r-move {
   padding-left:var(--space-4);
   border-left:2px solid var(--color-primary);
 }
 
-/*
-  Synthesis adds the same left-border treatment to r-internal and r-external.
-  These are the "What holds" blocks -- grounding anchors that work like
-  the move but look inward and outward. The border visually brackets
-  all three holding/moving elements together.
-*/
 .r-block.r-internal,
 .r-block.r-external {
   padding-left:var(--space-4);
@@ -805,7 +924,9 @@ tbody tr.clickable { cursor:pointer }
    MOTION SAFETY
 ═══════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .detail-content-inner,
+  .detail-inner,
+  .oe-depth,
+  .oe-toggle-icon,
   .resourcing,
   .r-door {
     transition: none;
@@ -822,6 +943,9 @@ tbody tr.clickable { cursor:pointer }
   .territory-layout { grid-template-columns:1fr }
   .territory-detail { position:static }
   .orb-cards { grid-template-columns:1fr }
+  .oe-preview, .oe-depth-grid { grid-template-columns:1fr }
+  .oe-block.oe-block-healthier { grid-column:1 }
+  .oe-surface { flex-direction:column; gap:var(--space-2) }
 }
 
 @media (max-width:700px) {
