@@ -1,0 +1,36 @@
+{
+  "contract_version": "research-context.v1",
+  "registry": "oracle-now/role-intelligence-registry",
+  "registry_version": "1.0.0",
+  "registry_commit": "834bf1357485b17872a0f835308f7e95cb727590",
+  "roles": [
+    "product_lead",
+    "ux_researcher",
+    "behavioral_scientist",
+    "product_designer",
+    "content_designer",
+    "accessibility_specialist",
+    "mental_health_reviewer"
+  ],
+  "cadence": "monthly",
+  "output": "docs/research/role-brief.md",
+  "freshness_days": 30,
+  "include": [
+    "behavioral_research",
+    "relationship_and_communication_research",
+    "mental_health_guidance",
+    "content_comprehension",
+    "accessibility",
+    "scope_of_practice",
+    "implications_for_this_repository"
+  ],
+  "exclude": [
+    "diagnosis",
+    "automatic_treatment_guidance",
+    "unreviewed_clinical_claims",
+    "runtime_network_fetches",
+    "automatic_product_changes",
+    "automatic_policy_changes"
+  ],
+  "require_human_approval": true
+}
